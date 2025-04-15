@@ -2,6 +2,7 @@
 
 import { AppSidebar } from "@/components/app-sidebar/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { VirtualMachine } from "@/components/virtual-machine";
 import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 
@@ -17,7 +18,7 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-red-500 text-white p-4 rounded-md">Tailwind Test</div>
+    <VirtualMachine />
     // <SidebarProvider>
     //   {/* <AppSidebar />
     //   <div className="flex flex-1"></div> */}
