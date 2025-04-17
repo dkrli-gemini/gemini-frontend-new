@@ -24,6 +24,9 @@ export const authOptions: NextAuthOptions = {
       if (token.realm_access?.roles) {
         session.user!.roles = token.realm_access.roles;
       }
+      if (token.access_token) {
+        session.access_token = token.access_token;
+      }
       return session;
     },
     async jwt({ token, account, profile }) {
@@ -31,6 +34,7 @@ export const authOptions: NextAuthOptions = {
         token.access_token = account.access_token;
         token.id_token = account.id_token;
         token.expires_at = account.expires_at;
+        console.log(token);
       }
       if (profile) {
         token.sub = profile?.sub;
