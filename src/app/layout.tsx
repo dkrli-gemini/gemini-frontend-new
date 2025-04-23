@@ -14,12 +14,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
       <body>
-        <SessionProvider>
-          <SidebarProvider>
-            <AppSidebar />
-            <div className="flex w-full h-full">{children}</div>
-          </SidebarProvider>
-        </SessionProvider>
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

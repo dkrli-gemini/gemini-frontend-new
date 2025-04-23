@@ -10,9 +10,9 @@ declare module "next-auth" {
   }
 
   interface Session extends DefaultSession {
-    user?: User;
+    user: User;
     id_token?: string; // If you're storing the ID token in the session
-    access_token?: string;
+    access_token: string;
     // Add other custom session properties here
   }
 }

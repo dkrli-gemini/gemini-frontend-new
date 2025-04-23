@@ -70,11 +70,6 @@ const data = {
           // icon: CirclePlus,
           url: "#",
         },
-        {
-          title: "Ajustes",
-          // icon: Settings,
-          url: "#",
-        },
       ],
     },
   ],
