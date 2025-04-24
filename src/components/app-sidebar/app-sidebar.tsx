@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/sidebar";
 import { NavMain } from "./nav-main";
 
-// This is sample data.
 const data = {
   user: {
     name: "shadcn",

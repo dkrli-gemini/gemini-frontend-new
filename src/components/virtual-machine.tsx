@@ -20,12 +20,14 @@ export function VirtualMachine(props: VirtualMachineInput) {
   const [active, setActive] = useState(props.state);
   const session = useSession();
   const virtualMachineStore = useVirtualMachineStore();
-
-  useEffect(() => {});
-
-  const handleOpenConsole = (machineId: string) => {
+  ("");
+  const handleOpenConsole = async (machineId: string) => {
     if (session.status == "authenticated") {
-      virtualMachineStore.fetchConsole(session.data?.access_token!, machineId);
+      await virtualMachineStore.fetchConsole(
+        session.data?.access_token!,
+        machineId
+      );
+      if (!virtualMachineStore.consoleUrl) return;
       window.open(
         virtualMachineStore.consoleUrl!,
         "_blank",

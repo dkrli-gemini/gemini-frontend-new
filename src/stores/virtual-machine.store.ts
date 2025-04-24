@@ -35,6 +35,8 @@ export const useVirtualMachineStore = create<VirtualMachineState>(
           },
         }
       );
+
+      console.log(response);
       const url = response.data.message.consoleUrl;
       set({
         consoleUrl: url,
