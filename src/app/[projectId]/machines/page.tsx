@@ -40,7 +40,7 @@ export default function MachinePage() {
       <AppSidebar />
       <div className="flex w-full h-full flex-col p-3">
         <div className="text-2xl font-bold mt-10">Máquinas virtuais</div>
-        <div className="bg-[#FAFAFA] border-md mt-5">
+        <div className="bg-gray-100 rounded-sm mt-5">
           {virtualMachineStore.machines.map((m) => (
             <VirtualMachine
               id={m.id}

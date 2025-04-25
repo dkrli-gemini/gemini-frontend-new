@@ -15,6 +15,7 @@ import {
   Settings,
   Settings2,
   SquareTerminal,
+  Wifi,
 } from "lucide-react";
 
 // import { NavProjects } from "@/components/nav-projects";
@@ -28,53 +29,58 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { NavMain } from "./nav-main";
-
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  teams: [
-    {
-      name: "DKRLI.",
-      logo: GalleryVerticalEnd,
-      plan: "Distribuidor",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-    {
-      name: "Evil Corp.",
-      logo: Command,
-      plan: "Free",
-    },
-  ],
-  navMain: [
-    {
-      title: "Máquinas Virtuais",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Minhas máquinas",
-          // icon: List,
-          url: "#",
-        },
-        {
-          title: "Nova máquina",
-          // icon: CirclePlus,
-          url: "#",
-        },
-      ],
-    },
-  ],
-};
+import { title } from "process";
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const session = useSession();
+  const params = useParams();
+
+  const data = {
+    teams: [
+      {
+        name: "RootProject",
+        logo: GalleryVerticalEnd,
+        plan: "ACS-HML-VIN2",
+      },
+    ],
+    navMain: [
+      {
+        title: "Máquinas Virtuais",
+        url: "#",
+        icon: SquareTerminal,
+        isActive: true,
+        items: [
+          {
+            title: "Minhas máquinas",
+            url: `/${params.projectId}/machines`,
+          },
+          {
+            title: "Nova máquina",
+            url: `/${params.projectId}/new-machine`,
+          },
+        ],
+      },
+      {
+        title: "Redes",
+        url: "#",
+        icon: Wifi,
+        isActive: true,
+        items: [
+          {
+            title: "Minhas redes",
+            url: `/${params.projectId}/networks`,
+          },
+          {
+            title: "Nova rede",
+            url: `/${params.projectId}/new-network`,
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
