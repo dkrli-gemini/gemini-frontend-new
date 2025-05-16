@@ -11,6 +11,8 @@ export interface DomainMember {
   userId: string;
   project: Project;
   role: string;
+  domainId: string;
+  domainName: string;
 }
 
 export interface DomainMemberState {
@@ -39,7 +41,8 @@ export const useDomainMemberStore = create<DomainMemberState>((set, get) => ({
           Authorization: `Bearer ${token}`,
         },
       });
-      const domainMembers = response.data.message.projects;
+      const domainMembers = response.data.message.projectMembers;
+      console.log(domainMembers);
       set({
         loading: false,
         error: null,
@@ -52,6 +55,8 @@ export const useDomainMemberStore = create<DomainMemberState>((set, get) => ({
           },
           role: member.role,
           userId: member.userId,
+          domainId: member.domainId,
+          domainName: member.domainName,
         })),
       });
     } catch (e) {

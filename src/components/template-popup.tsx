@@ -6,13 +6,16 @@ export interface TemplateProps {
   memory: string;
   cpu: string;
   disk: string;
+  active: boolean;
 }
 
 export default function TemplatePopup(props: TemplateProps) {
   return (
     <div
       className={cn(
-        "border p-6 flex flex-col items-center justify-center gap-5 rounded-md"
+        "border p-6 flex flex-col items-center justify-center gap-5 rounded-md",
+        "hover:bg-gray-200 hover:border-gray-600",
+        props.active ? "border-black" : ""
       )}
     >
       <div>{props.name}</div>

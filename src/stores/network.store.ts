@@ -12,7 +12,7 @@ export interface Network {
 export interface NetworkState {
   networks: Network[];
   loading: boolean;
-  error: null;
+  error: string | null;
   fetched: boolean;
   fetchNetworks: (token: string, projectId: string) => Promise<void>;
   createNetwork: (
@@ -59,12 +59,9 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     console.log(response);
   },
   fetchNetworks: async (token: string, projectId: string) => {
-    if (get().loading == true) return;
+    if (get().loading) return;
     set({ loading: true, error: null });
-    if (get().fetched == true) {
-      set({ loading: false, error: null });
-      return;
-    }
+
     try {
       const response = await axios.get(
         `http://localhost:3003/projects/list-networks/${projectId}`,

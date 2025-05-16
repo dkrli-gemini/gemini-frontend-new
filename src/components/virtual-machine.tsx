@@ -6,6 +6,9 @@ import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
 import { useSession } from "next-auth/react";
 import { useVirtualMachineStore } from "@/stores/virtual-machine.store";
+import { useJobStore } from "@/stores/job.store";
+import { cn } from "@/lib/utils";
+import { Spinner } from "./ui/spinner";
 
 export interface VirtualMachineInput {
   name: string;
@@ -20,7 +23,34 @@ export function VirtualMachine(props: VirtualMachineInput) {
   const [active, setActive] = useState(props.state);
   const session = useSession();
   const virtualMachineStore = useVirtualMachineStore();
-  ("");
+  const jobStore = useJobStore();
+
+  const handleMachineState = async () => {
+    if (active) {
+      const jobId = await virtualMachineStore.stopVirtualMachine(
+        session.data?.access_token!,
+        props.id
+      );
+      await jobStore.startJob(jobId!, session.data?.access_token!);
+      setActive(false);
+    } else {
+      const jobId = await virtualMachineStore.startVirtualMachine(
+        session.data?.access_token!,
+        props.id
+      );
+      await jobStore.startJob(jobId!, session.data?.access_token!);
+      setActive(true);
+    }
+  };
+
+  const handleMachineStart = async () => {
+    const jobId = await virtualMachineStore.startVirtualMachine(
+      session.data?.access_token!,
+      props.id
+    );
+    console.log(jobId);
+  };
+
   const handleOpenConsole = async (machineId: string) => {
     if (session.status == "authenticated") {
       await virtualMachineStore.fetchConsole(
@@ -37,7 +67,12 @@ export function VirtualMachine(props: VirtualMachineInput) {
   };
 
   return (
-    <div className="bg-white p-5 m-2 grid grid-cols-4 rounded-sm border ">
+    <div
+      className={cn(
+        "bg-white p-5 m-2 grid grid-cols-4 rounded-sm border",
+        jobStore.isPolling ? " border border-amber-600 border-2 " : ""
+      )}
+    >
       <div className="flex gap-3 items-center col-span-2">
         <Computer size={18} />
         {props.name}
@@ -45,9 +80,28 @@ export function VirtualMachine(props: VirtualMachineInput) {
       </div>
       <div className="text-sm items-center flex text-slate-400">{props.ip}</div>
       <div className="flex justify-end  items-center gap-4 w-full h-full bg-clip-content ">
-        <div className="flex flex-col justify-center items-center gap-2 mr-5">
+        <div
+          className={cn(
+            "flex flex-col justify-center items-center gap-2 mr-5",
+            jobStore.isPolling ? "border-black border-sm  p-1" : ""
+          )}
+        >
           <Power size={18} />
-          <Switch checked={active}></Switch>
+          <Switch
+            checked={active}
+            disabled={jobStore.isPolling}
+            onCheckedChange={() => handleMachineState()}
+          ></Switch>
+          <div className="flex justify-center items-center gap-2">
+            {jobStore.isPolling ? (
+              <>
+                <Spinner size="small" />
+                {active ? "Iniciando..." : "Desligando..."}
+              </>
+            ) : (
+              <></>
+            )}
+          </div>
         </div>
 
         <div className="flex gap-1">

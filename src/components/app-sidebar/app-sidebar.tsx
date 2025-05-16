@@ -9,6 +9,7 @@ import {
   Command,
   Frame,
   GalleryVerticalEnd,
+  Home,
   List,
   Map,
   PieChart,
@@ -31,11 +32,13 @@ import {
 import { NavMain } from "./nav-main";
 import { title } from "process";
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const session = useSession();
   const params = useParams();
+  const router = useRouter();
 
   const data = {
     teams: [
@@ -90,7 +93,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
-      <SidebarFooter>{/* <NavUser user={data.user} /> */}</SidebarFooter>
+      <SidebarFooter>
+        <div
+          className="flex gap-2 justify-center p-2 border-t hover:bg-gray-200"
+          onClick={() => router.push("/home")}
+        >
+          <Home />
+        </div>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

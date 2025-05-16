@@ -16,6 +16,14 @@ export interface VirtualMachineState {
   error: string | null;
   fetched: boolean;
   fetchVirtualMachines: (token: string, projectId: string) => Promise<void>;
+  startVirtualMachine: (
+    token: string,
+    machineId: string
+  ) => Promise<string | undefined>;
+  stopVirtualMachine: (
+    token: string,
+    machineId: string
+  ) => Promise<string | undefined>;
   createVirtualMachine: (
     token: string,
     name: string,
@@ -65,6 +73,51 @@ export const useVirtualMachineStore = create<VirtualMachineState>(
       }
       set({ loading: false, error: null });
     },
+    startVirtualMachine: async (
+      token: string,
+      machineId: string
+    ): Promise<string | undefined> => {
+      try {
+        const response = await axios.post(
+          `http://localhost:3003/machines/start-machine`,
+          {
+            machineId: machineId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        return response.data.message.jobId;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    stopVirtualMachine: async (
+      token: string,
+      machineId: string
+    ): Promise<string | undefined> => {
+      try {
+        const response = await axios.post(
+          `http://localhost:3003/machines/stop-machine`,
+          {
+            machineId: machineId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        return response.data.message.jobId;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
     fetchConsole: async (token: string, machineId: string) => {
       const response = await axios.get(
         `http://localhost:3003/machines/console/${machineId}`,

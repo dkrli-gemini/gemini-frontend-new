@@ -30,19 +30,48 @@ export default function Home() {
               ? session.data!.user.name?.split(" ")[0]
               : ""}
           </h1>
-          <div>
-            <h2 className="font-semibold text-xl">Meus projetos</h2>
-            <Separator />
-            <HorizontalScroller
-              items={domainMemberStore.members.map((member) => (
-                <ProjectPopup
-                  key={member.id}
-                  projectName={member.project.name}
-                  projectDomain="TestDomain"
-                  projectId={member.project.id}
-                />
-              ))}
-            />
+          <div className="flex flex-col gap-10">
+            <div>
+              <h2 className="font-semibold text-xl">Meus projetos</h2>
+              <Separator />
+              <HorizontalScroller
+                items={domainMemberStore.members.map((member) => (
+                  <ProjectPopup
+                    key={member.id}
+                    projectName={
+                      member.domainName == member.project.name
+                        ? `${member.project.name} (Root)`
+                        : member.project.name
+                    }
+                    projectDomain={member.domainName}
+                    projectId={member.project.id}
+                  />
+                ))}
+              />
+            </div>
+            <div>
+              <h2 className="font-semibold text-xl">Meus clientes</h2>
+              <Separator />
+              {/* <HorizontalScroller
+                items={domainMemberStore.members.map((member) => (
+                  <ProjectPopup
+                    key={member.id}
+                    projectName={
+                      member.domainName == member.project.name
+                        ? `${member.project.name} (Root)`
+                        : member.project.name
+                    }
+                    projectDomain={member.domainName}
+                    projectId={member.project.id}
+                  />
+                ))}
+              /> */}
+              <ProjectPopup
+                projectName="NibloClient"
+                projectDomain=""
+                projectId="g"
+              />
+            </div>
           </div>
         </div>
       </div>

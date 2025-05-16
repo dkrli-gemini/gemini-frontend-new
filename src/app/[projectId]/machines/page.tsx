@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { VirtualMachine } from "@/components/virtual-machine";
 import { useDomainStore } from "@/stores/domain.store";
+import { JobStoreProvider } from "@/stores/job.store";
 import { useVirtualMachineStore } from "@/stores/virtual-machine.store";
 import { useSession } from "next-auth/react";
 import {
@@ -42,14 +43,16 @@ export default function MachinePage() {
         <div className="text-2xl font-bold mt-10">Máquinas virtuais</div>
         <div className="bg-gray-100 rounded-sm mt-5">
           {virtualMachineStore.machines.map((m) => (
-            <VirtualMachine
-              id={m.id}
-              ip={m.ipAddress}
-              name={m.name}
-              state={m.state == "on" ? true : false}
-              key={m.id}
-              os={m.os}
-            />
+            <JobStoreProvider key={m.id}>
+              <VirtualMachine
+                id={m.id}
+                ip={m.ipAddress}
+                name={m.name}
+                state={m.state == "RUNNING" ? true : false}
+                key={m.id}
+                os={m.os}
+              />
+            </JobStoreProvider>
           ))}
         </div>
       </div>

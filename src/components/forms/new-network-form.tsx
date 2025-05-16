@@ -1,7 +1,7 @@
 "use client";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, UseFormReturn } from "react-hook-form";
 import {
   Form,
   FormControl,
@@ -19,7 +19,7 @@ import OSPopup from "../os-popup";
 import TemplatePopup from "../template-popup";
 import { useSession } from "next-auth/react";
 import { useNetworkStore } from "@/stores/network.store";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useVirtualMachineStore } from "@/stores/virtual-machine.store";
 import { Computer } from "lucide-react";
 import { Checkbox } from "../ui/checkbox";
@@ -38,18 +38,15 @@ const formSchema = z.object({
 
 export interface ACLListProps {
   name: string;
+  form: UseFormReturn<any>;
 }
 
 export function ACLListElement(props: ACLListProps) {
+  const [state, setState] = useState<boolean>(false);
+
   return (
     <div className="flex border-t py-4 gap-2 border-gray-400">
-      <FormControl>
-        {/* <Checkbox
-          className="border border-black w-5 h-5"
-          checked={false}
-          onCheckedChange={() => {}}
-        /> */}
-      </FormControl>
+      <Checkbox className="border-black" />
       <Label>{props.name}</Label>
     </div>
   );
@@ -59,11 +56,13 @@ export default function NetNetworkForm() {
   const [currentNetworkId, setCurrentNetworkId] = useState<string | null>(null);
   const session = useSession();
   const params = useParams();
+  const pathname = usePathname();
   const networkStore = useNetworkStore();
   const virtualMachineStore = useVirtualMachineStore();
   const router = useRouter();
 
   useEffect(() => {
+    console.log(params);
     if (session.status == "authenticated") {
       networkStore.fetchNetworks(
         session.data.access_token,
@@ -92,7 +91,12 @@ export default function NetNetworkForm() {
       session.data?.access_token!,
       params.projectId as string
     );
-    router.push(`/${params.projectId as string}/networks`);
+    const segments = pathname.split("/");
+    const lastSegment = segments[segments.length - 1];
+
+    if (lastSegment == "new-network") {
+      router.push(`/${params.projectId as string}/networks`);
+    }
   }
 
   return (
@@ -142,15 +146,15 @@ export default function NetNetworkForm() {
         ></FormField>
         <div className="text-sm font-medium">Regras ACL</div>
         <Separator />
-        <div className="flex">
+        <div className="flex-1 flex justify-center px-10">
+          <Button type="button" variant="default" className="flex-1">
+            Adicionar regra ACL
+          </Button>
+        </div>
+        <div className="flex flex-col">
           <div className="flex-1 flex flex-col bg-gray-100 p-2 rounded-sm">
-            <ACLListElement name="Permitir todos" />
-            <ACLListElement name="Negar todos" />
-          </div>
-          <div className="flex-1 flex justify-center px-10">
-            <Button type="button" variant="default" className="flex-1">
-              Adicionar regra ACL
-            </Button>
+            <ACLListElement name="Permitir todos" form={form} />
+            <ACLListElement name="Negar todos" form={form} />
           </div>
         </div>
         <Button type="submit" className="mt-5">

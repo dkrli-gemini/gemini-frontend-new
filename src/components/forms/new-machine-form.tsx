@@ -22,6 +22,7 @@ import { useNetworkStore } from "@/stores/network.store";
 import { useParams, useRouter } from "next/navigation";
 import { useVirtualMachineStore } from "@/stores/virtual-machine.store";
 import { Computer } from "lucide-react";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 const formSchema = z.object({
   machineName: z
@@ -51,7 +52,7 @@ export default function NewMachineForm() {
       );
     }
   }),
-    [session.status, networkStore.fetchNetworks];
+    [session.status];
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -114,9 +115,11 @@ export default function NewMachineForm() {
         <div className="flex flex-col">
           <div className="font-medium text-sm gap-2 mb-1 flex justify-between items-center">
             Rede{" "}
-            <Button variant={"outline"} type="button">
-              Nova rede
-            </Button>
+            <DialogTrigger asChild>
+              <Button variant={"outline"} type="button">
+                Nova rede
+              </Button>
+            </DialogTrigger>
           </div>
           <Separator />
           <SelectableHorizontalList
@@ -140,9 +143,9 @@ export default function NewMachineForm() {
           <Separator />
 
           <div className="flex gap-2 justify-center p-3">
-            <OSPopup name="Ubuntu" icon={<Computer />} />
-            <OSPopup name="Windows" icon={<Computer />} />
-            <OSPopup name="CentOS" icon={<Computer />} />
+            <OSPopup name="Ubuntu" icon={<Computer />} active={true} />
+            <OSPopup name="Windows" icon={<Computer />} active={false} />
+            <OSPopup name="CentOS" icon={<Computer />} active={false} />
           </div>
         </div>
         <div>
@@ -156,18 +159,21 @@ export default function NewMachineForm() {
               disk="200gb"
               cpu="1x0.50Hz"
               name="Instância Pequena"
+              active={false}
             />
             <TemplatePopup
               memory="2gb"
               disk="500gb"
               cpu="1x1.00Hz"
               name="Instância Média"
+              active={true}
             />
             <TemplatePopup
               memory="8gb"
               disk="1tb"
               cpu="1x2.00Hz"
               name="Instância Grande"
+              active={false}
             />
           </div>
         </div>

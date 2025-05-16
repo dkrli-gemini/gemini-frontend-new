@@ -48,14 +48,12 @@ export default function SelectableNetworkPopup({
         </div>
       </div>
       <div className="flex gap-1 mt-8 ">
-        <Button className="flex-3" variant="outline">
-          Ativo
-        </Button>
-        <Button className="flex-1">
-          <Settings />
-        </Button>
-        <Button className="flex-1">
-          <TrashIcon />
+        <Button
+          type="button"
+          className={cn("flex-3")}
+          variant={isSelected ? "default" : "outline"}
+        >
+          {isSelected ? "Selecionado" : "Selecionar"}
         </Button>
       </div>
     </div>
