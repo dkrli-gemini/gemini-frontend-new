@@ -50,8 +50,8 @@ export default function Home() {
               />
             </div>
             <div>
-              <h2 className="font-semibold text-xl">Meus clientes</h2>
-              <Separator />
+              {/* <h2 className="font-semibold text-xl">Meus clientes</h2>
+              <Separator /> */}
               {/* <HorizontalScroller
                 items={domainMemberStore.members.map((member) => (
                   <ProjectPopup
@@ -66,11 +66,11 @@ export default function Home() {
                   />
                 ))}
               /> */}
-              <ProjectPopup
+              {/* <ProjectPopup
                 projectName="NibloClient"
                 projectDomain=""
                 projectId="g"
-              />
+              /> */}
             </div>
           </div>
         </div>

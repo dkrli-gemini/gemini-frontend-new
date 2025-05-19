@@ -7,7 +7,7 @@ interface NavbarProps {}
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
   return (
-    <div className="shadow bg-[#FAFAFA]">
+    <div className="shadow bg-[#0F3759] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
@@ -35,7 +35,9 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
                 Configurações
               </Link>
               <Link
-                onClick={() => {signOut()}}
+                onClick={() => {
+                  signOut();
+                }}
                 href=""
                 className={cn(
                   "text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800 dark:text-gray-300 px-3 py-2 rounded-md text-sm font-medium",
