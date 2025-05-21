@@ -9,6 +9,7 @@ import { useVirtualMachineStore } from "@/stores/virtual-machine.store";
 import { useJobStore } from "@/stores/job.store";
 import { cn } from "@/lib/utils";
 import { Spinner } from "./ui/spinner";
+import { useRouter } from "next/navigation";
 
 export interface VirtualMachineInput {
   name: string;
@@ -24,6 +25,7 @@ export function VirtualMachine(props: VirtualMachineInput) {
   const session = useSession();
   const virtualMachineStore = useVirtualMachineStore();
   const jobStore = useJobStore();
+  const router = useRouter();
 
   const handleMachineState = async () => {
     if (active) {
@@ -69,9 +71,13 @@ export function VirtualMachine(props: VirtualMachineInput) {
   return (
     <div
       className={cn(
-        "bg-white p-5 m-2 grid grid-cols-4 rounded-sm border",
-        jobStore.isPolling ? " border border-amber-600 border-2 " : ""
+        "bg-white p-5 m-2 grid grid-cols-4 rounded-sm border cursor-pointer",
+        jobStore.isPolling ? " border border-amber-600 border-2 " : "",
+        "hover:bg-gray-200 transition-all duration-200 ease-in-out"
       )}
+      onClick={() => {
+        console.log(router.push(`machines/${props.id}/info`));
+      }}
     >
       <div className="flex gap-3 items-center col-span-2">
         <Computer size={18} />

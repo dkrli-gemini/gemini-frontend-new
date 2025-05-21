@@ -1,6 +1,7 @@
 "use client";
 
 import Navbar from "@/components/app-navbar";
+import ClientPopup from "@/components/client-popup";
 import HorizontalScroller from "@/components/horizontal-scroller";
 import ProjectPopup from "@/components/project-popup";
 import { Separator } from "@/components/ui/separator";
@@ -50,22 +51,17 @@ export default function Home() {
               />
             </div>
             <div>
-              {/* <h2 className="font-semibold text-xl">Meus clientes</h2>
-              <Separator /> */}
-              {/* <HorizontalScroller
+              <h2 className="font-semibold text-xl">Meus domínios</h2>
+              <Separator />
+              <HorizontalScroller
                 items={domainMemberStore.members.map((member) => (
-                  <ProjectPopup
+                  <ClientPopup
                     key={member.id}
-                    projectName={
-                      member.domainName == member.project.name
-                        ? `${member.project.name} (Root)`
-                        : member.project.name
-                    }
-                    projectDomain={member.domainName}
-                    projectId={member.project.id}
+                    clientName={member.domainName}
+                    clientId={member.domainId}
                   />
                 ))}
-              /> */}
+              />
               {/* <ProjectPopup
                 projectName="NibloClient"
                 projectDomain=""

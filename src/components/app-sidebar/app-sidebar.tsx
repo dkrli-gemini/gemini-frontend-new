@@ -85,15 +85,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="icon" {...props} className="border-r border-black">
+      <SidebarHeader className=" bg-[#6bc6d651] border-b">
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className=" bg-[#6bc6d651]">
         <NavMain items={data.navMain} />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className=" bg-[#6bc6d651]">
         <div
           className="flex gap-2 justify-center p-2 border-t hover:bg-gray-200"
           onClick={() => router.push("/home")}

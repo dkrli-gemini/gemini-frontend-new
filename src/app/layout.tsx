@@ -5,6 +5,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { SessionProvider } from "next-auth/react";
 import { ReactNode } from "react";
 import "./globals.css";
+import { filsonPro } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -13,7 +15,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en">
-      <body>
+      <body className={cn(filsonPro.variable)}>
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>

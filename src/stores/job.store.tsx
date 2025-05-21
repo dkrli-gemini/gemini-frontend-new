@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createContext, useRef, useContext, Context } from "react";
 import { create, StoreApi, UseBoundStore } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface JobState {
   jobId: string | null;
@@ -14,7 +15,7 @@ export interface JobState {
 }
 
 export const createJobStore = () =>
-  create<JobState>((set, get) => ({
+  create<JobState>()((set, get) => ({
     jobId: null,
     status: "NONE",
     token: null,
@@ -22,7 +23,12 @@ export const createJobStore = () =>
     isPolling: false,
 
     startJob: async (jobId: string, token: string): Promise<void> => {
-      set({ status: "PENDING", isPolling: true, jobId: jobId, token: token });
+      set({
+        status: "PENDING",
+        isPolling: true,
+        jobId: jobId,
+        token: token,
+      });
       get().pollStatus();
     },
     pollStatus: async (): Promise<void> => {

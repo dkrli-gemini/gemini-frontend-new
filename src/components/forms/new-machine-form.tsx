@@ -31,9 +31,7 @@ const formSchema = z.object({
       message: "O nome da máquina deve ter pelo menos 4 caracteres",
     })
     .max(25, { message: "O nome da máquina deve ter no máximo 25 caracteres" }),
-  machineIp: z
-    .string()
-    .ip({ version: "v4", message: "O valor deve ser um IP válido" }),
+  machinePassword: z.string(),
 });
 
 export default function NewMachineForm() {
@@ -101,12 +99,12 @@ export default function NewMachineForm() {
         ></FormField>
         <FormField
           control={form.control}
-          name="machineIp"
+          name="machinePassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Endereço IP</FormLabel>
+              <FormLabel>Senha do primeiro acesso</FormLabel>
               <FormControl>
-                <Input placeholder="Ex: 192.168.0.1" {...field} />
+                <Input placeholder="" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
