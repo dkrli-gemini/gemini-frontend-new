@@ -1,12 +1,21 @@
 import axios from "axios";
 import { create } from "zustand";
 
+export interface Instance {
+  id: string;
+  name: string;
+  cpu: string;
+  memory: string;
+  disk: string;
+}
+
 export interface VirtualMachine {
   id: string;
   os: string;
   name: string;
   state: string;
   ipAddress: string;
+  instance: Instance;
 }
 
 export interface VirtualMachineState {
@@ -119,6 +128,7 @@ export const useVirtualMachineStore = create<VirtualMachineState>(
     },
 
     fetchConsole: async (token: string, machineId: string) => {
+      console.log("fetch");
       const response = await axios.get(
         `http://localhost:3003/machines/console/${machineId}`,
         {
@@ -151,6 +161,7 @@ export const useVirtualMachineStore = create<VirtualMachineState>(
           }
         );
         const machines = response.data.message.machines;
+        console.log("Fetched machines:", machines);
         set({
           loading: false,
           error: null,
@@ -161,11 +172,25 @@ export const useVirtualMachineStore = create<VirtualMachineState>(
             os: m.os,
             ipAddress: m.ipAddress,
             state: m.state,
+            instance: {
+              id: m.instance.id,
+              name: m.instance.name,
+              cpu: m.instance.cpu,
+              memory: m.instance.memory,
+              disk: m.instance.disk,
+            },
           })),
         });
-        console.log(response.data.message);
-      } catch (e) {
-        console.log(e);
+        console.log("Full API response message:", response.data.message);
+      } catch (e: any) {
+        console.error(
+          "Error fetching virtual machines:",
+          e.response?.data || e.message || e
+        );
+        set({
+          loading: false,
+          error: e.message || "An unknown error occurred",
+        });
       }
     },
   })

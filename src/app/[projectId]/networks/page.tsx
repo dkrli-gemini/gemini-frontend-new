@@ -20,7 +20,7 @@ export default function NetworkPage() {
         params.projectId as string
       );
     }
-  }, [session, networkStore.fetchNetworks]);
+  }, [session.status, networkStore, params.projectId, session.data?.access_token]);
 
   return (
     <SidebarProvider>

@@ -1,13 +1,46 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
-import { NextRequest, NextResponse } from "next/server";
+import { jwtDecode } from "jwt-decode";
+import { encrypt, decrypt } from "jose";
 
-console.log("CLIENT_ID:", process.env.KEYCLOAK_CLIENT_ID);
-console.log("CLIENT_SECRET:", process.env.KEYCLOAK_CLIENT_SECRET);
-console.log("ISSUER:", process.env.KEYCLOAK_ISSUER);
-console.log("SECRET:", process.env.NEXTAUTH_SECRET);
+async function refreshAccessToken(token: any) {
+  try {
+    const response = await fetch(`${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
+      {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: process.env.KEYCLOAK_CLIENT_ID!,
+          client_secret: process.env.KEYCLOAK_CLIENT_SECRET!,
+          grant_type: "refresh_token",
+          refresh_token: token.refreshToken!,
+        }),
+        method: "POST",
+      }
+    );
 
-export const authOptions: NextAuthOptions = {
+    const refreshedTokens = await response.json();
+
+    if (!response.ok) {
+      throw refreshedTokens;
+    }
+
+    return {
+      ...token,
+      access_token: refreshedTokens.access_token,
+      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
+      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
+    };
+  } catch (error) {
+    console.log(error);
+
+    return {
+      ...token,
+      error: "RefreshAccessTokenError",
+    };
+  }
+}
+
+const authOptions: NextAuthOptions = {
   providers: [
     KeycloakProvider({
       clientId: process.env.KEYCLOAK_CLIENT_ID!,
@@ -35,14 +68,19 @@ export const authOptions: NextAuthOptions = {
         token.access_token = account.access_token;
         token.id_token = account.id_token;
         token.expires_at = account.expires_at;
-        console.log(token);
+        token.refreshToken = account.refresh_token;
       }
       if (profile) {
         token.sub = profile?.sub;
         token.name = profile?.name;
         token.email = profile?.email;
       }
-      return token;
+
+      if (Date.now() < (token.expires_at! * 1000)) {
+        return token;
+      }
+
+      return refreshAccessToken(token);
     },
   },
   // pages: {
@@ -53,10 +91,4 @@ export const authOptions: NextAuthOptions = {
 
 const handler = NextAuth(authOptions);
 
-export async function GET(req: NextRequest, res: NextResponse) {
-  return handler(req, res) as Promise<NextResponse>;
-}
-
-export async function POST(req: NextRequest, res: NextResponse) {
-  return handler(req, res) as Promise<NextResponse>;
-}
+export { handler as GET, handler as POST };

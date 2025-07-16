@@ -13,6 +13,7 @@ declare module "next-auth" {
     user: User;
     id_token?: string; // If you're storing the ID token in the session
     access_token: string;
+    error?: "RefreshAccessTokenError";
     // Add other custom session properties here
   }
 }
@@ -23,6 +24,8 @@ declare module "next-auth/jwt" {
     access_token?: string;
     id_token?: string;
     expires_at?: number;
+    refreshToken?: string;
+    error?: "RefreshAccessTokenError";
     roles?: string[];
     preferred_username?: string; // Add the preferred_username property to JWT as well
     realm_access?: {
