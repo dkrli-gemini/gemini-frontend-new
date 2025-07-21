@@ -8,7 +8,7 @@ import { Search, Plus } from "lucide-react";
 import AddIcon from "@mui/icons-material/Add";
 import { Sidebar } from "@/components/atomic/Sidebar";
 
-export default function Home() {
+export default function MachinesPage() {
   return (
     <div className="flex flex-col h-full">
       <Header />

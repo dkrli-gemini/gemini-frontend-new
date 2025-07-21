@@ -1,11 +1,11 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import { jwtDecode } from "jwt-decode";
-import { encrypt, decrypt } from "jose";
 
 async function refreshAccessToken(token: any) {
   try {
-    const response = await fetch(`${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
+    const response = await fetch(
+      `${process.env.KEYCLOAK_ISSUER}/protocol/openid-connect/token`,
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
@@ -76,7 +76,7 @@ const authOptions: NextAuthOptions = {
         token.email = profile?.email;
       }
 
-      if (Date.now() < (token.expires_at! * 1000)) {
+      if (Date.now() < token.expires_at! * 1000) {
         return token;
       }
 
