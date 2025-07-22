@@ -5,7 +5,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { projectId: string } }
 ) {
-  const projectId = params.projectId;
+  const projectId = (await params).projectId;
   const authHeader = req.headers.get("authorization") || "";
 
   try {

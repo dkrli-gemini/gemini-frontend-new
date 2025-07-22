@@ -6,36 +6,43 @@ import { useJobStore } from "@/stores/job.store";
 import { useSession } from "next-auth/react";
 import { Switch } from "./ui/switch";
 import { Button } from "./ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { StatusBadge } from "./atomic/StatusBadge";
 import { VirtualMachineEntry } from "./atomic/VirtualMachineEntry";
 import { stat } from "fs";
+import { Instance, useVMStore } from "@/stores/vm-store";
 
 export function VirtualMachinesTable() {
-  const virtualMachineStore = useVirtualMachineStore();
+  const [loading, setLoading] = useState(false);
+  const { machines, setMachines } = useVMStore();
   const jobStore = useJobStore();
   const { data: session, status } = useSession();
 
   useEffect(() => {
     async function fetchMachines() {
-      const response = await fetch(
-        "/api/2f582214-4ca7-4774-92f5-e215f3b60787/machines/list-machines",
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.access_token}`,
-          },
+      setLoading(true);
+      if (session?.access_token) {
+        const response = await fetch(
+          "/api/2f582214-4ca7-4774-92f5-e215f3b60787/machines/list-machines",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const result = await response.json();
+          setMachines(result.message.machines);
         }
-      );
-
-      console.log(await response.json());
+      }
+      setLoading(false);
     }
 
-    if (status == "authenticated") {
-      fetchMachines();
-    }
-  });
+    fetchMachines();
+  }, [session, setMachines]);
 
   return (
     <div className=" ">
@@ -62,7 +69,23 @@ export function VirtualMachinesTable() {
           </tr>
         </thead>
         <tbody>
-          <VirtualMachineEntry />
+          {loading ? (
+            <tr>
+              <td colSpan={5} className="p-4 text-center">
+                Loading...
+              </td>
+            </tr>
+          ) : (
+            machines.map((vm) => (
+              <VirtualMachineEntry
+                name={vm.name}
+                ip={vm.ipAddress}
+                status={vm.state}
+                key={vm.id}
+                id={vm.id}
+              />
+            ))
+          )}
           {/* {virtualMachineStore.machines.map((vm) => (
             <tr
               key={vm.id}

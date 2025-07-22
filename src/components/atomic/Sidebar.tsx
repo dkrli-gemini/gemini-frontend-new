@@ -23,17 +23,17 @@ export const Sidebar = () => {
         </button>
       </span>
       <span className="flex flex-col px-1 gap-2">
-        <span className="bg-[#F0F0F0] p-1 rounded-xl flex justify-center items-center aspect-square">
+        <span className="bg-[#F0F0F0] p-1 rounded-xl flex justify-center items-center aspect-square cursor-pointer">
           <MemoryIcon />
         </span>
-        <span className=" p-1 rounded-xl flex justify-center items-center aspect-square">
+        <span className=" p-1 rounded-xl flex justify-center items-center aspect-square  cursor-pointer">
           <WifiIcon />
         </span>
-        <span className="p-1 rounded-xl flex justify-center items-center aspect-square">
+        <span className="p-1 rounded-xl flex justify-center items-center aspect-square  cursor-pointer">
           <ChecklistIcon />
         </span>
 
-        <span className="p-1 rounded-xl flex justify-center items-center aspect-square">
+        <span className="p-1 rounded-xl flex justify-center items-center aspect-square  cursor-pointer">
           <AltRouteIcon />
         </span>
       </span>
