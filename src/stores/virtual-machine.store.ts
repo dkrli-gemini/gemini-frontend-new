@@ -33,14 +33,7 @@ export interface VirtualMachineState {
     token: string,
     machineId: string
   ) => Promise<string | undefined>;
-  createVirtualMachine: (
-    token: string,
-    name: string,
-    projectId: string,
-    offerId: string,
-    templateId: string,
-    networkId: string
-  ) => Promise<void>;
+  
   fetchConsole: (token: string, machineId: string) => Promise<void>;
 }
 
@@ -51,37 +44,7 @@ export const useVirtualMachineStore = create<VirtualMachineState>(
     loading: false,
     error: null,
     fetched: false,
-    createVirtualMachine: async (
-      token: string,
-      name: string,
-      projectId: string,
-      offerId: string,
-      templateId: string,
-      networkId: string
-    ) => {
-      set({ loading: true, error: null });
-      console.log(name, projectId, offerId, templateId, networkId);
-      try {
-        const response = await axios.post(
-          `http://localhost:3003/projects/add-virtual-machine/${projectId}`,
-          {
-            name: name,
-            cloudstackOfferId: offerId,
-            cloudstackTemplateId: templateId,
-            networkId: networkId,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(response);
-      } catch (e) {
-        console.log(e);
-      }
-      set({ loading: false, error: null });
-    },
+    
     startVirtualMachine: async (
       token: string,
       machineId: string

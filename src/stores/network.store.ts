@@ -15,15 +15,7 @@ export interface NetworkState {
   error: string | null;
   fetched: boolean;
   fetchNetworks: (token: string, projectId: string) => Promise<void>;
-  createNetwork: (
-    token: string,
-    projectId: string,
-    name: string,
-    gateway: string,
-    netmask: string,
-    aclId: string,
-    offerId: string
-  ) => Promise<void>;
+  
 }
 
 export const useNetworkStore = create<NetworkState>((set, get) => ({
@@ -31,33 +23,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   loading: false,
   error: null,
   fetched: false,
-  createNetwork: async (
-    token: string,
-    projectId: string,
-    name: string,
-    gateway: string,
-    netmask: string,
-    aclId: string,
-    offerId: string
-  ) => {
-    set({ loading: true, error: null });
-    const response = await axios.post(
-      `http://localhost:3003/network/add-network/${projectId}`,
-      {
-        name: name,
-        gateway,
-        netmask,
-        cloudstackAclId: aclId,
-        cloudstackOfferId: offerId,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    console.log(response);
-  },
+  
   fetchNetworks: async (token: string, projectId: string) => {
     if (get().loading) return;
     set({ loading: true, error: null });

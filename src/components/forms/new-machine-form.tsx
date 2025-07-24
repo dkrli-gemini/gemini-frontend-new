@@ -1,184 +1,204 @@
 "use client";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Separator } from "../ui/separator";
-import { Button } from "../ui/button";
-import { SelectableHorizontalList } from "../selectable-horizontal-scroller";
-import { useEffect, useState } from "react";
-import OSPopup from "../os-popup";
-import TemplatePopup from "../template-popup";
+
+import { Button } from "@/components/atomic/Button";
+import { Input } from "@/components/atomic/Input";
+import { SearchInput } from "@/components/atomic/SearchInput";
+import SelectableDataTable, {
+  DataTableRow,
+} from "@/components/atomic/SelectableDataTable";
 import { useSession } from "next-auth/react";
-import { useNetworkStore } from "@/stores/network.store";
-import { useParams, useRouter } from "next/navigation";
-import { useVirtualMachineStore } from "@/stores/virtual-machine.store";
-import { Computer } from "lucide-react";
-import { DialogTrigger } from "@radix-ui/react-dialog";
+import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAlertStore } from "@/stores/alert.store";
 
-const formSchema = z.object({
-  machineName: z
-    .string()
-    .min(4, {
-      message: "O nome da máquina deve ter pelo menos 4 caracteres",
-    })
-    .max(25, { message: "O nome da máquina deve ter no máximo 25 caracteres" }),
-  machinePassword: z.string(),
-});
-
-export default function NewMachineForm() {
-  const [currentNetworkId, setCurrentNetworkId] = useState<string | null>(null);
+export function NewMachineForm() {
   const session = useSession();
-  const params = useParams();
-  const networkStore = useNetworkStore();
-  const virtualMachineStore = useVirtualMachineStore();
+  const [machineName, setMachineName] = useState("");
+  const [machinePassword, setMachinePassword] = useState("");
+  const [selectedNetwork, setSelectedNetwork] = useState<DataTableRow | null>(
+    null
+  );
+  const [selectedOs, setSelectedOs] = useState<DataTableRow | null>(null);
+  const [selectedOffer, setSelectedOffer] = useState<DataTableRow | null>(null);
+  const [showNewNetworkForm, setShowNewNetworkForm] = useState(false);
+  const [newNetworkName, setNewNetworkName] = useState("");
+  const [newNetworkGateway, setNewNetworkGateway] = useState("");
+  const [newNetworkNetmask, setNewNetworkNetmask] = useState("");
+
   const router = useRouter();
+  const { showAlert } = useAlertStore();
 
-  useEffect(() => {
-    if (session.status == "authenticated") {
-      networkStore.fetchNetworks(
-        session.data.access_token,
-        params.projectId as string
-      );
+  const handleCreateNetwork = async () => {
+    const token = "your-auth-token"; // Replace with actual token retrieval
+    const projectId = "your-project-id"; // Replace with actual project ID
+    const aclId = "your-acl-id"; // Replace with actual ACL ID
+    const offerId = "your-offer-id"; // Replace with actual offer ID
+
+    try {
+      const response = await fetch("/api/networks/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: newNetworkName,
+          projectId,
+          gateway: newNetworkGateway,
+          netmask: newNetworkNetmask,
+          aclId,
+          offerId,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Network created successfully");
+        setShowNewNetworkForm(false); // Close the form on success
+        setNewNetworkName("");
+        setNewNetworkGateway("");
+        setNewNetworkNetmask("");
+      } else {
+        console.error("Failed to create network");
+      }
+    } catch (error) {
+      console.error("Error creating network:", error);
     }
-  }),
-    [session.status];
+  };
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {},
-  });
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    const token = session.data?.access_token; // Replace with actual token retrieval
+    const projectId = "2f582214-4ca7-4774-92f5-e215f3b60787"; // Replace with actual project ID
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    await virtualMachineStore.createVirtualMachine(
-      session.data?.access_token!,
-      values.machineName,
-      params.projectId as string,
-      "a3490a4c-2213-4636-86f1-c021e7da9bea",
-      "625fdb7e-fe8c-11ef-ad17-000c2918dc6d",
-      currentNetworkId!
-    );
-    // await virtualMachineStore.fetchVirtualMachines(
-    //   session.data?.access_token!,
-    //   params.projectId as string
-    // );
-    router.push(`/${params.projectId as string}/machines`);
-  }
+    if (selectedNetwork && selectedOs && selectedOffer) {
+      try {
+        const response = await fetch("/api/machines/create", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: machineName,
+            projectId,
+            offerId: "a3490a4c-2213-4636-86f1-c021e7da9bea", // selectedOffer.id,
+            templateId: "49bbcba0-29ae-46b4-a59b-5c10ebd2b888", // selectedOs.id,
+            networkId: "852daacd-682f-47c3-9dd7-d63afcb4f13c", //selectedNetwork.id,
+          }),
+        });
 
-  const handleNetworkSelection = (id: string | null) => {
-    console.log("Item selected in page:", id);
-    setCurrentNetworkId(id);
+        if (response.ok) {
+          showAlert("Máquina criada com sucesso!", "success");
+          router.push("/machines");
+        } else {
+          console.error("Failed to create machine");
+          showAlert("Erro na criação da máquina.", "error");
+        }
+      } catch (error) {
+        console.error("Error creating machine:", error);
+      }
+    }
   };
 
   return (
-    <Form {...form}>
-      <form
-        className="flex flex-col gap-5"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <FormField
-          control={form.control}
-          name="machineName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nome</FormLabel>
-              <FormControl>
-                <Input placeholder="Ex: maquinaprincipal" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
-        <FormField
-          control={form.control}
-          name="machinePassword"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Senha do primeiro acesso</FormLabel>
-              <FormControl>
-                <Input placeholder="" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        ></FormField>
-        <div className="flex flex-col">
-          <div className="font-medium text-sm gap-2 mb-1 flex justify-between items-center">
-            Rede{" "}
-            <DialogTrigger asChild>
-              <Button variant={"outline"} type="button">
-                Nova rede
-              </Button>
-            </DialogTrigger>
-          </div>
-          <Separator />
-          <SelectableHorizontalList
-            items={networkStore.networks.map((network) => ({
-              id: network.id,
-              gateway: network.gateway,
-              name: network.name,
-              netmask: network.netmask,
-            }))}
-            onSelectChange={handleNetworkSelection}
-          />
-          <Separator />
+    <form
+      id="new-machine-form"
+      onSubmit={handleSubmit}
+      className="flex flex-col w-full px-18 mt-12"
+    >
+      <div className="flex flex-col gap-10">
+        <h2 className="text-2xl font-bold">Dados Gerais</h2>
+        <div className="flex flex-row gap-20">
+          <span className="flex flex-1 flex-col">
+            <p className="text-lg ">Nome da máquina</p>
+            <Input
+              className="mt-2"
+              placeholder="Digite aqui..."
+              value={machineName}
+              onChange={(e) => setMachineName(e.target.value)}
+            />
+          </span>
+          <span className="flex flex-1 flex-col">
+            <p className="text-lg">Senha da máquina</p>
+            <Input
+              className="mt-2"
+              placeholder="Digite aqui..."
+              value={machinePassword}
+              onChange={(e) => setMachinePassword(e.target.value)}
+            />
+          </span>
         </div>
-        <div>
-          <div className="font-medium text-sm gap-2 mb-1 flex justify-between items-center">
-            Sistema Operacional
-            <Button variant={"outline"} type="button">
-              Carregar ISO
-            </Button>
-          </div>
-          <Separator />
+      </div>
 
-          <div className="flex gap-2 justify-center p-3">
-            <OSPopup name="Ubuntu" icon={<Computer />} active={true} />
-            <OSPopup name="Windows" icon={<Computer />} active={false} />
-            <OSPopup name="CentOS" icon={<Computer />} active={false} />
-          </div>
+      <div className="flex justify-between items-end mt-16 mb-2">
+        <h2 className="text-3xl font-bold">Redes disponíveis</h2>
+        <span className="flex items-center gap-3">
+          <SearchInput />
+          <Button variant="primary" onClick={() => setShowNewNetworkForm(true)}>
+            Criar nova rede
+          </Button>
+        </span>
+      </div>
+      {showNewNetworkForm && (
+        <div className="flex flex-col gap-4 mt-4">
+          <Input
+            placeholder="Nome da rede"
+            value={newNetworkName}
+            onChange={(e) => setNewNetworkName(e.target.value)}
+          />
+          <Input
+            placeholder="Gateway"
+            value={newNetworkGateway}
+            onChange={(e) => setNewNetworkGateway(e.target.value)}
+          />
+          <Input
+            placeholder="Netmask"
+            value={newNetworkNetmask}
+            onChange={(e) => setNewNetworkNetmask(e.target.value)}
+          />
+          <Button variant="primary" onClick={handleCreateNetwork}>
+            Salvar
+          </Button>
         </div>
-        <div>
-          <div className="font-medium text-sm gap-2 mb-1 flex justify-between items-center">
-            Template
-          </div>
-          <Separator />
-          <div className="flex gap-2 justify-center p-3">
-            <TemplatePopup
-              memory="200mb"
-              disk="200gb"
-              cpu="1x0.50Hz"
-              name="Instância Pequena"
-              active={false}
-            />
-            <TemplatePopup
-              memory="2gb"
-              disk="500gb"
-              cpu="1x1.00Hz"
-              name="Instância Média"
-              active={true}
-            />
-            <TemplatePopup
-              memory="8gb"
-              disk="1tb"
-              cpu="1x2.00Hz"
-              name="Instância Grande"
-              active={false}
-            />
-          </div>
-        </div>
-        <Button type="submit">
-          {virtualMachineStore.loading ? "Carregando" : "Criar Máquina"}
-        </Button>
-      </form>
-    </Form>
+      )}
+
+      <SelectableDataTable
+        name="networks"
+        headers={["Nome", "Gateway", "Netmask"]}
+        rows={[
+          {
+            id: "asdasd",
+            data: ["TestNetwork", "10.128.3.0", "255.255.255.0"],
+          },
+        ]}
+        onRowSelected={setSelectedNetwork}
+      />
+      <div className="flex justify-between n items-end mt-16 mb-2">
+        <h2 className="text-3xl font-bold">Sistemas Operacionais</h2>
+        <SearchInput />
+      </div>
+      <SelectableDataTable
+        name="os"
+        headers={["Nome", "Tamanho"]}
+        rows={[{ id: "asdasd", data: ["Ubuntu", "1 GB"] }]}
+        onRowSelected={setSelectedOs}
+      />
+      <div className="flex justify-between items-end mt-16 mb-2">
+        <h2 className="text-3xl font-bold">Offers</h2>
+        <SearchInput />
+      </div>
+      <SelectableDataTable
+        name="offers"
+        headers={["Nome", "CPU", "Memória", "Disco"]}
+        rows={[
+          {
+            id: "asdasd",
+            data: ["Instância Pequena", "1x 0.50 Hz", "400 MB", "200 GB"],
+          },
+        ]}
+        onRowSelected={setSelectedOffer}
+      />
+      <div className="mb-14"></div>
+    </form>
   );
 }

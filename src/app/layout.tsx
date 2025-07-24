@@ -11,6 +11,8 @@ import { NSidebar } from "@/components/NSidebar";
 import { JobStoreProvider } from "@/stores/job.store";
 import { Sidebar } from "@/components/atomic/Sidebar";
 
+import { GlobalAlert } from "@/components/global-alert";
+
 interface RootLayoutProps {
   children: ReactNode;
 }
@@ -21,6 +23,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className={cn(filsonPro.variable)}>
         <SessionProvider>
           <JobStoreProvider>
+            <GlobalAlert />
             <div className="flex min-h-screen">
               <Sidebar />
               <main className="flex-1">{children}</main>
