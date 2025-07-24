@@ -7,9 +7,10 @@ import SelectableDataTable, {
   DataTableRow,
 } from "@/components/atomic/SelectableDataTable";
 import { useSession } from "next-auth/react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAlertStore } from "@/stores/alert.store";
+import { useNetworkStore } from "@/stores/network.store";
 
 export function NewMachineForm() {
   const session = useSession();
@@ -24,46 +25,37 @@ export function NewMachineForm() {
   const [newNetworkName, setNewNetworkName] = useState("");
   const [newNetworkGateway, setNewNetworkGateway] = useState("");
   const [newNetworkNetmask, setNewNetworkNetmask] = useState("");
+  const [loadingNetworks, setLoadingNetworks] = useState(false);
+  const { networks, setNetworks } = useNetworkStore();
 
   const router = useRouter();
   const { showAlert } = useAlertStore();
 
-  const handleCreateNetwork = async () => {
-    const token = "your-auth-token"; // Replace with actual token retrieval
-    const projectId = "your-project-id"; // Replace with actual project ID
-    const aclId = "your-acl-id"; // Replace with actual ACL ID
-    const offerId = "your-offer-id"; // Replace with actual offer ID
+  useEffect(() => {
+    async function fetchNetworks() {
+      setLoadingNetworks(true);
+      if (session.data?.access_token) {
+        const response = await fetch("/api/networks/list-networks", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data.access_token}`,
+          },
+          method: "POST",
+          body: JSON.stringify({
+            projectId: "2f582214-4ca7-4774-92f5-e215f3b60787",
+          }),
+        });
 
-    try {
-      const response = await fetch("/api/networks/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: newNetworkName,
-          projectId,
-          gateway: newNetworkGateway,
-          netmask: newNetworkNetmask,
-          aclId,
-          offerId,
-        }),
-      });
-
-      if (response.ok) {
-        console.log("Network created successfully");
-        setShowNewNetworkForm(false); // Close the form on success
-        setNewNetworkName("");
-        setNewNetworkGateway("");
-        setNewNetworkNetmask("");
-      } else {
-        console.error("Failed to create network");
+        if (response.ok) {
+          const result = await response.json();
+          setNetworks(result.message.networks);
+        }
+        setLoadingNetworks(false);
       }
-    } catch (error) {
-      console.error("Error creating network:", error);
     }
-  };
+
+    fetchNetworks();
+  }, [session, setNetworks]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -156,7 +148,7 @@ export function NewMachineForm() {
             value={newNetworkNetmask}
             onChange={(e) => setNewNetworkNetmask(e.target.value)}
           />
-          <Button variant="primary" onClick={handleCreateNetwork}>
+          <Button variant="primary" onClick={() => {}}>
             Salvar
           </Button>
         </div>
@@ -165,12 +157,10 @@ export function NewMachineForm() {
       <SelectableDataTable
         name="networks"
         headers={["Nome", "Gateway", "Netmask"]}
-        rows={[
-          {
-            id: "asdasd",
-            data: ["TestNetwork", "10.128.3.0", "255.255.255.0"],
-          },
-        ]}
+        rows={networks.map((net) => ({
+          id: net.id,
+          data: [net.name, net.gateway, net.netmask],
+        }))}
         onRowSelected={setSelectedNetwork}
       />
       <div className="flex justify-between n items-end mt-16 mb-2">
