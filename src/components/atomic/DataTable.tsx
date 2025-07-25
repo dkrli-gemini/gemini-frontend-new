@@ -1,6 +1,13 @@
+import * as React from "react";
+
+export interface DataTableRow {
+  id: string;
+  data: React.ReactNode[];
+}
+
 interface DataTableProps {
   headers: string[];
-  rows: string[][];
+  rows: DataTableRow[];
 }
 
 export default function DataTable({ headers, rows }: DataTableProps) {
@@ -17,10 +24,10 @@ export default function DataTable({ headers, rows }: DataTableProps) {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr key={rowIndex} className="border-t border-tools-table-outline">
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex} className="px-4 py-3">
+          {rows.map((row) => (
+            <tr key={row.id} className="border-t border-tools-table-outline">
+              {row.data.map((cell, cellIndex) => (
+                <td key={cellIndex} className="px-4 py-4">
                   {cell}
                 </td>
               ))}

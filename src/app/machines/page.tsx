@@ -20,6 +20,7 @@ export default function MachinesPage() {
       <Header />
 
       <PageHeader
+        title="Máquinas Virtuais"
         el1name="Total de máquinas"
         el1value={String(vmStore.machines.length)}
         el2name="Máquinas ligadas"
