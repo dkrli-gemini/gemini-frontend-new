@@ -7,9 +7,9 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status, pclassName }: StatusBadgeProps) {
   const statusStyles: Record<Status, string> = {
-    Running: "bg-green-100 text-green-700",
+    RUNNING: "bg-green-100 text-green-700",
     Error: "bg-red-100 text-red-700",
-    Stopped: "bg-gray-100 text-gray-600",
+    STOPPED: "bg-gray-100 text-gray-600",
     Starting: "bg-yellow-100 text-yellow-700",
     Stopping: "bg-yellow-100 text-yellow-700",
     Rodando: "bg-green-100 text-green-700",
@@ -21,7 +21,7 @@ export function StatusBadge({ status, pclassName }: StatusBadgeProps) {
         statusStyles[status] || "bg-gray-100 text-gray-600"
       } ${pclassName}`}
     >
-      {status}
+      {status == "RUNNING" ? "Em execução" : "Parada"}
     </span>
   );
 }

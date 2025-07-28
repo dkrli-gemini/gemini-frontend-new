@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowUpDown, SquareTerminal, Terminal } from "lucide-react";
-import { useVirtualMachineStore } from "@/stores/virtual-machine.store";
 import { useJobStore } from "@/stores/job.store";
 import { useSession } from "next-auth/react";
 import { Switch } from "./ui/switch";
@@ -10,7 +9,6 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { StatusBadge } from "./atomic/StatusBadge";
 import { VirtualMachineEntry } from "./atomic/VirtualMachineEntry";
-import { stat } from "fs";
 import { Instance, useVMStore } from "@/stores/vm-store";
 
 export function VirtualMachinesTable() {
@@ -35,6 +33,7 @@ export function VirtualMachinesTable() {
 
         if (response.ok) {
           const result = await response.json();
+          console.log(result.message.machines);
           setMachines(result.message.machines);
         }
       }

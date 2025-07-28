@@ -63,13 +63,13 @@ export default function MachineInfoPage() {
           <div className="mt-5 grid grid-cols-4 grid-rows-3 gap-y-12 mt-10">
             <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
               <p className="font-normal text-sm ">Sistema operacional</p>
-              {machine.os}
+              {machine.template.name}
             </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
+            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1 ">
               <p className="font-normal text-sm ">Status</p>
               <StatusBadge
                 status={machine.state}
-                pclassName="inline-flex w-fit"
+                pclassName="inline-flex w-50 h-7 flex justify-center items-center"
               />
             </span>
             <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
@@ -86,15 +86,15 @@ export default function MachineInfoPage() {
             </span>
             <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
               <p className="font-normal text-sm ">Memória</p>
-              {machine.instance.memory}
+              {machine.instance.memory} MB
             </span>
             <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
               <p className="font-normal text-sm ">CPU</p>
-              {machine.instance.cpu}
+              {machine.instance.cpu} Hz
             </span>
             <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
               <p className="font-normal text-sm ">Disco</p>
-              {machine.instance.disk}
+              {machine.instance.disk} GB
             </span>
             <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
               <p className="font-normal text-sm ">Criação</p>
