@@ -33,7 +33,6 @@ export function VirtualMachinesTable() {
 
         if (response.ok) {
           const result = await response.json();
-          console.log(result.message.machines);
           setMachines(result.message.machines);
         }
       }

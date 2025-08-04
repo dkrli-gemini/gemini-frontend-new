@@ -10,9 +10,16 @@ export function StatusBadge({ status, pclassName }: StatusBadgeProps) {
     RUNNING: "bg-green-100 text-green-700",
     Error: "bg-red-100 text-red-700",
     STOPPED: "bg-gray-100 text-gray-600",
-    Starting: "bg-yellow-100 text-yellow-700",
-    Stopping: "bg-yellow-100 text-yellow-700",
+    STARTING: "bg-yellow-100 text-yellow-700",
+    STOPPING: "bg-yellow-100 text-yellow-700",
     Rodando: "bg-green-100 text-green-700",
+  };
+
+  const statusTexts: Record<Status, string> = {
+    RUNNING: "Em execução",
+    STOPPED: "Parada",
+    STARTING: "Iniciando...",
+    STOPPING: "Desligando...",
   };
 
   return (
@@ -21,7 +28,7 @@ export function StatusBadge({ status, pclassName }: StatusBadgeProps) {
         statusStyles[status] || "bg-gray-100 text-gray-600"
       } ${pclassName}`}
     >
-      {status == "RUNNING" ? "Em execução" : "Parada"}
+      {statusTexts[status]}
     </span>
   );
 }

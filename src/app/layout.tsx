@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { NSidebar } from "@/components/NSidebar";
 import { JobStoreProvider } from "@/stores/job.store";
 import { Sidebar } from "@/components/atomic/Sidebar";
+import { usePathname } from "next/navigation";
 
 import { GlobalAlert } from "@/components/global-alert";
 
@@ -18,6 +19,8 @@ interface RootLayoutProps {
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
+  const pathname = usePathname();
+  const isRootPage = pathname === "/";
   return (
     <html lang="en">
       <body className={cn(filsonPro.variable)}>
@@ -25,7 +28,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <JobStoreProvider>
             <GlobalAlert />
             <div className="flex min-h-screen">
-              <Sidebar />
+              {!isRootPage && <Sidebar />}
               <main className="flex-1">{children}</main>
             </div>
           </JobStoreProvider>

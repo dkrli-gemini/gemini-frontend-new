@@ -1,13 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { StatusBadge } from "./StatusBadge";
 import Switch from "./Switch";
 import { Button } from "./Button";
 import Link from "next/link";
-import { useMachineJobStore } from "@/stores/machine-job.store";
 import { useSession } from "next-auth/react";
-import { useVMStore } from "@/stores/vm-store";
 
 export interface VirtualMachineEntryProps {
   name: string;
@@ -18,32 +16,19 @@ export interface VirtualMachineEntryProps {
 
 export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
-  const { jobs, setJobState } = useMachineJobStore();
-  const { setMachineStatus } = useVMStore();
-
-  const isStarting = jobs[props.id]?.isStarting || false;
-  const isStopping = jobs[props.id]?.isStopping || false;
-  const jobId = jobs[props.id]?.jobId || null;
 
   const handleMachineState = async (
     machineId: string,
     currentState: string
   ) => {
-    if (!session?.access_token) return;
+    if (!session?.access_token || isLoading) return;
 
-    let endpoint = "";
-    let action = "";
+    setIsLoading(true);
 
-    if (currentState === "RUNNING") {
-      endpoint = "/api/machines/stop";
-      action = "stopping";
-      setJobState(machineId, { isStopping: true, jobId: null });
-    } else {
-      endpoint = "/api/machines/start";
-      action = "starting";
-      setJobState(machineId, { isStarting: true, jobId: null });
-    }
+    const endpoint =
+      currentState === "RUNNING" ? "/api/machines/stop" : "/api/machines/start";
 
     try {
       const response = await fetch(endpoint, {
@@ -56,53 +41,35 @@ export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        setJobState(machineId, { jobId: result.jobId });
+        window.location.reload();
       } else {
-        console.error(`Failed to ${action} machine:`, response.statusText);
-        setJobState(machineId, { isStarting: false, isStopping: false, jobId: null });
       }
     } catch (error) {
-      console.error(`Error ${action} machine:`, error);
-      setJobState(machineId, { isStarting: false, isStopping: false, jobId: null });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    const pollJobStatus = async () => {
-      if (!jobId) return;
-
-      try {
-        const response = await fetch(
-          `http://localhost:3003/jobs/status/${jobId}`
-        );
-        if (response.ok) {
-          const result = await response.json();
-          if (result.status === "DONE") {
-            setMachineStatus(props.id, isStarting ? "RUNNING" : "STOPPED");
-            setJobState(props.id, { isStarting: false, isStopping: false, jobId: null });
-            clearInterval(interval);
-          }
-        } else {
-          console.error("Failed to fetch job status:", response.statusText);
-          setJobState(props.id, { isStarting: false, isStopping: false, jobId: null });
-          clearInterval(interval);
+  const handleConsole = async () => {
+    if (session?.access_token) {
+      const response = await fetch("/api/machines/fetch-console", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          machineId: props.id,
+        }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result.message && result.message.consoleUrl) {
+          window.open(result.message.consoleUrl, "_blank");
         }
-      } catch (error) {
-        console.error("Error polling job status:", error);
-        setJobState(props.id, { isStarting: false, isStopping: false, jobId: null });
-        clearInterval(interval);
       }
-    };
-
-    if (jobId) {
-      interval = setInterval(pollJobStatus, 2000); // Poll every 2 seconds
     }
-
-    return () => clearInterval(interval);
-  }, [jobId, props.id, isStarting, setJobState, setMachineStatus]);
+  };
 
   return (
     <tr
@@ -117,8 +84,8 @@ export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
       </td>
       <td className="p-4 py-4 w-50">
         <Switch
-          checked={props.status === "RUNNING"}
-          disabled={isStarting || isStopping}
+          checked={props.status == "STARTING" || props.status == "RUNNING"}
+          disabled={props.status == "STARTING" || props.status == "STOPPING"}
           onCheckedChange={() => handleMachineState(props.id, props.status)}
         />
       </td>
@@ -128,7 +95,11 @@ export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
             <span className="cursor-pointer">
               <Link href={`/machines/${props.id}`}>Detalhes</Link>
             </span>
-            <Button variant="primary" className="w-30">
+            <Button
+              variant="primary"
+              className="w-30"
+              onClick={() => handleConsole()}
+            >
               Console
             </Button>
           </div>

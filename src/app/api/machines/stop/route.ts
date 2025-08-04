@@ -7,8 +7,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.post(
-      `http://localhost:3003/machines/stop/${machineId}`,
-      {},
+      `http://localhost:3003/machines/stop-machine`,
+      {
+        machineId,
+      },
       {
         headers: {
           Authorization: authHeader,

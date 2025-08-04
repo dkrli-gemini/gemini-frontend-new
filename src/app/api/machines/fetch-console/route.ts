@@ -3,14 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   const { machineId } = await req.json();
-  const authHeader = req.headers.get("authorization") || "";
+  const authHeader = req.headers.get("authorization");
 
   try {
-    const response = await axios.post(
-      `http://localhost:3003/machines/start-machine`,
-      {
-        machineId,
-      },
+    const response = await axios.get(
+      `http://localhost:3003/machines/console/${machineId}`,
       {
         headers: {
           Authorization: authHeader,
