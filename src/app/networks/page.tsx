@@ -49,11 +49,11 @@ export default function NetworksPage() {
       <PageHeader
         title="Redes"
         el1name="Total de redes"
-        el1value={"4"}
+        el1value={String(networks.length)}
         el2name="Redes online"
-        el2value="0"
+        el2value={String(networks.length)}
         el3name="Redes em uso"
-        el3value={"0"}
+        el3value={String(networks.length)}
         el4name="Erros"
         el4value="0"
       />

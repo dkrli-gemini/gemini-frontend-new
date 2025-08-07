@@ -24,9 +24,21 @@ export default function MachinesPage() {
         el1name="Total de máquinas"
         el1value={String(vmStore.machines.length)}
         el2name="Máquinas ligadas"
-        el2value="0"
+        el2value={String(
+          vmStore.machines.reduce(
+            (acc, cur) =>
+              cur.state == "RUNNING" || cur.state == "STARTING" ? ++acc : acc,
+            0
+          )
+        )}
         el3name="Máquinas desligadas"
-        el3value={String(vmStore.machines.length)}
+        el3value={String(
+          vmStore.machines.reduce(
+            (acc, cur) =>
+              cur.state == "STOPPING" || cur.state == "STOPPED" ? ++acc : acc,
+            0
+          )
+        )}
         el4name="Status de erro"
         el4value="0"
       />
