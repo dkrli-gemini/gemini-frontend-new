@@ -11,9 +11,20 @@ import AddIcon from "@mui/icons-material/Add";
 import { Sidebar } from "@/components/atomic/Sidebar";
 import Link from "next/link";
 import { useVMStore } from "@/stores/vm-store";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function MachinesPage() {
   const vmStore = useVMStore();
+  const session = useSession();
+
+  useEffect(() => {
+    console.log(session.status);
+
+    if (session.status == "unauthenticated") {
+      signIn();
+    }
+  }, [session]);
 
   return (
     <div className="flex flex-col h-full">
@@ -55,7 +66,7 @@ export default function MachinesPage() {
             </Button>
           </div>
 
-          <VirtualMachinesTable />
+          {session.status == "authenticated" && <VirtualMachinesTable />}
         </div>
       </div>
     </div>

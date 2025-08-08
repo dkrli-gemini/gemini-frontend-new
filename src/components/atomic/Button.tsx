@@ -1,9 +1,10 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 
 export interface ButtonProps {
   children: any;
-  variant: "primary" | "ghost";
+  variant: "primary" | "ghost" | "outlined";
   className?: string;
   form?: string;
   type?: "submit" | "button" | "reset";

@@ -61,6 +61,12 @@ const authOptions: NextAuthOptions = {
       if (token.access_token) {
         session.access_token = token.access_token;
       }
+      if (token.error) {
+        session.error = token.error as string;
+      }
+      if (token.expires_at) {
+        session.expires = new Date(token.expires_at * 1000).toISOString();
+      }
       return session;
     },
     async jwt({ token, account, profile }) {
@@ -83,10 +89,9 @@ const authOptions: NextAuthOptions = {
       return refreshAccessToken(token);
     },
   },
-  // pages: {
-  //   signIn: "/auth/signin", // Optional custom sign-in page
-  //   error: "/auth/error", // Optional custom error page
-  // },
+  pages: {
+    signIn: "/auth/signin",
+  },
 };
 
 const handler = NextAuth(authOptions);

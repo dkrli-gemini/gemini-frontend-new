@@ -11,6 +11,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
+import { Modal } from "../atomic/Modal";
 
 export function NewMachineForm() {
   const session = useSession();
@@ -21,11 +22,8 @@ export function NewMachineForm() {
   );
   const [selectedOs, setSelectedOs] = useState<DataTableRow | null>(null);
   const [selectedOffer, setSelectedOffer] = useState<DataTableRow | null>(null);
-  const [showNewNetworkForm, setShowNewNetworkForm] = useState(false);
-  const [newNetworkName, setNewNetworkName] = useState("");
-  const [newNetworkGateway, setNewNetworkGateway] = useState("");
-  const [newNetworkNetmask, setNewNetworkNetmask] = useState("");
   const [loadingNetworks, setLoadingNetworks] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { networks, setNetworks } = useNetworkStore();
 
   const router = useRouter();
@@ -126,33 +124,11 @@ export function NewMachineForm() {
         <h2 className="text-3xl font-bold">Redes disponíveis</h2>
         <span className="flex items-center gap-3">
           <SearchInput />
-          <Button variant="primary" onClick={() => setShowNewNetworkForm(true)}>
+          <Button variant="primary" onClick={() => setIsModalOpen(true)}>
             Criar nova rede
           </Button>
         </span>
       </div>
-      {showNewNetworkForm && (
-        <div className="flex flex-col gap-4 mt-4">
-          <Input
-            placeholder="Nome da rede"
-            value={newNetworkName}
-            onChange={(e) => setNewNetworkName(e.target.value)}
-          />
-          <Input
-            placeholder="Gateway"
-            value={newNetworkGateway}
-            onChange={(e) => setNewNetworkGateway(e.target.value)}
-          />
-          <Input
-            placeholder="Netmask"
-            value={newNetworkNetmask}
-            onChange={(e) => setNewNetworkNetmask(e.target.value)}
-          />
-          <Button variant="primary" onClick={() => {}}>
-            Salvar
-          </Button>
-        </div>
-      )}
 
       <SelectableDataTable
         name="networks"
@@ -189,6 +165,44 @@ export function NewMachineForm() {
         onRowSelected={setSelectedOffer}
       />
       <div className="mb-14"></div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        header={<h2 className="text-lg m-1 font-medium  ">Criar Rede</h2>}
+        footer={
+          <>
+            <Button
+              onClick={() => setIsModalOpen(false)}
+              variant="ghost"
+              className="flex self-start text-md "
+            >
+              Fechar
+            </Button>
+            <Button
+              onClick={() => setIsModalOpen(false)}
+              variant="primary"
+              className="inline-flex text-md col-start-4 col-span-2"
+            >
+              Salvar
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col ">
+            <p>Nome da rede</p>
+            <Input placeholder="Digite aqui..." className="mt-2" />
+          </div>
+          <div className="flex flex-col ">
+            <p>Gateway</p>
+            <Input placeholder="Digite aqui..." className="mt-2" />
+          </div>
+          <div className="flex flex-col ">
+            <p>Netmask</p>
+            <Input placeholder="Digite aqui..." className="mt-2 " />
+          </div>
+        </div>
+      </Modal>
     </form>
   );
 }

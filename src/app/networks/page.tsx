@@ -2,18 +2,20 @@
 
 import { Button } from "@/components/atomic/Button";
 import DataTable from "@/components/atomic/DataTable";
+import { Input } from "@/components/atomic/Input";
+import { Modal } from "@/components/atomic/Modal";
 import { PageHeader } from "@/components/atomic/PageHeader";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import { Header } from "@/components/Header";
 import { useNetworkStore } from "@/stores/network.store";
 import AddIcon from "@mui/icons-material/Add";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function NetworksPage() {
   const session = useSession();
   const [loadingNetworks, setLoadingNetworks] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { networks, setNetworks } = useNetworkStore();
 
   useEffect(() => {
@@ -62,10 +64,12 @@ export default function NetworksPage() {
         <div className="px-21">
           <div className="flex justify-between mb-8">
             <SearchInput />
-            <Button variant="primary" className="w-fit">
-              <Link href="/networks/new">
-                <AddIcon /> Nova Rede
-              </Link>
+            <Button
+              variant="primary"
+              className="w-fit"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <AddIcon /> Nova Rede
             </Button>
           </div>
 
@@ -78,6 +82,44 @@ export default function NetworksPage() {
           />
         </div>
       </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        header={<h2 className="text-lg m-1 font-medium  ">Criar Rede</h2>}
+        footer={
+          <>
+            <Button
+              onClick={() => setIsModalOpen(false)}
+              variant="ghost"
+              className="flex self-start text-md "
+            >
+              Fechar
+            </Button>
+            <Button
+              onClick={() => setIsModalOpen(false)}
+              variant="primary"
+              className="inline-flex text-md col-start-4 col-span-2"
+            >
+              Salvar
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col ">
+            <p>Nome da rede</p>
+            <Input placeholder="Digite aqui..." className="mt-2" />
+          </div>
+          <div className="flex flex-col ">
+            <p>Gateway</p>
+            <Input placeholder="Digite aqui..." className="mt-2" />
+          </div>
+          <div className="flex flex-col ">
+            <p>Netmask</p>
+            <Input placeholder="Digite aqui..." className="mt-2 " />
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
