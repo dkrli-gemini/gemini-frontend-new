@@ -126,21 +126,23 @@ export const Sidebar = () => {
           >
             <ChecklistIcon />
             {isSidebarHovered && (
-              <span className="ml-2 whitespace-nowrap">ACL&apos;s</span>
+              <span className="ml-2 whitespace-nowrap">Firewall</span>
             )}
           </span>
         </Link>
-        <span
-          onClick={() => setSelected("routes")}
-          onMouseEnter={() => handleItemMouseEnter("routes")}
-          onMouseLeave={handleItemMouseLeave}
-          className={getItemClassName("routes")}
-        >
-          <AltRouteIcon />
-          {isSidebarHovered && (
-            <span className="ml-2 whitespace-nowrap">Port Forwarding</span>
-          )}
-        </span>
+        <Link href="/forwarding">
+          <span
+            onClick={() => setSelected("routes")}
+            onMouseEnter={() => handleItemMouseEnter("routes")}
+            onMouseLeave={handleItemMouseLeave}
+            className={getItemClassName("routes")}
+          >
+            <AltRouteIcon />
+            {isSidebarHovered && (
+              <span className="ml-2 whitespace-nowrap">Port Forwarding</span>
+            )}
+          </span>
+        </Link>
       </span>
       <span className="flex flex-col justify-end px-1 mr-2  mb-2 gap-2">
         {/* <span

@@ -54,7 +54,7 @@ export default function AclPage() {
       <Header />
 
       <PageHeader2
-        title="ACL's"
+        title="Firewall"
         el1name="Total de listas"
         el1value={String(acls.length)}
         el2name="Listas em uso"

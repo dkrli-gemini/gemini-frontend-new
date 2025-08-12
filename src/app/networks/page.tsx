@@ -117,7 +117,7 @@ export default function NetworksPage() {
           </div>
 
           <DataTable
-            headers={["Nome", "Gateway", "Netmask"]}
+            headers={["Nome", "Gateway", "Netmask", "ACL"]}
             rows={networks.map((net) => ({
               id: net.id,
               data: [net.name, net.gateway, net.netmask],
