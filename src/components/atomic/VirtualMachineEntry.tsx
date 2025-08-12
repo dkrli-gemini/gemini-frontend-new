@@ -6,6 +6,7 @@ import Switch from "./Switch";
 import { Button } from "./Button";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useAlertStore } from "@/stores/alert.store";
 
 export interface VirtualMachineEntryProps {
   name: string;
@@ -18,6 +19,7 @@ export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
+  const { showAlert } = useAlertStore();
 
   const handleMachineState = async (
     machineId: string,
@@ -51,6 +53,10 @@ export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
   };
 
   const handleConsole = async () => {
+    if (props.status != "RUNNING") {
+      showAlert("A máquina deve estar ligada para acessar o console.", "info");
+      return;
+    }
     if (session?.access_token) {
       const response = await fetch("/api/machines/fetch-console", {
         method: "POST",

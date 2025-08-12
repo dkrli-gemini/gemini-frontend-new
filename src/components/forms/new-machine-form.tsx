@@ -56,7 +56,7 @@ export function NewMachineForm() {
     }
 
     fetchNetworks();
-  }, [session, setNetworks]);
+  }, [session, setNetworks, currentProjectId]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -76,7 +76,7 @@ export function NewMachineForm() {
             projectId,
             offerId: "a3490a4c-2213-4636-86f1-c021e7da9bea", // selectedOffer.id,
             templateId: "49bbcba0-29ae-46b4-a59b-5c10ebd2b888", // selectedOs.id,
-            networkId: "99f683b1-ca70-4d4c-941a-317204bf0f7f", //selectedNetwork.id,
+            networkId: selectedNetwork.id, //selectedNetwork.id,
           }),
         });
 

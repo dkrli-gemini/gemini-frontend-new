@@ -22,6 +22,7 @@ export default function AclPage() {
   const session = useSession();
   const { acls, setAcl } = useAclStore();
   const { currentProjectId } = useProjectsStore();
+  
 
   useEffect(() => {
     async function fetchAcls() {

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { useVMStore } from "@/stores/vm-store";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
+import { useAlertStore } from "@/stores/alert.store";
 
 export default function MachinesPage() {
   const vmStore = useVMStore();
