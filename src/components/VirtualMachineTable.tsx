@@ -22,7 +22,7 @@ export function VirtualMachinesTable() {
       setLoading(true);
       if (session?.access_token) {
         const response = await fetch(
-          "/api/2f582214-4ca7-4774-92f5-e215f3b60787/machines/list-machines",
+          "/api/03f1213a-2621-4558-9349-d0767154ac83/machines/list-machines",
           {
             headers: {
               "Content-Type": "application/json",

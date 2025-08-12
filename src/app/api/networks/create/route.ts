@@ -1,10 +1,7 @@
-
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(
-  req: NextRequest,
-) {
+export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization") || "";
   const body = await req.json();
 
@@ -26,6 +23,8 @@ export async function POST(
         },
       }
     );
+
+    console.log(response);
 
     return NextResponse.json(response.data, {
       status: response.status,

@@ -7,16 +7,22 @@ import { Modal } from "@/components/atomic/Modal";
 import { PageHeader } from "@/components/atomic/PageHeader";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import { Header } from "@/components/Header";
+import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
 import AddIcon from "@mui/icons-material/Add";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 export default function NetworksPage() {
   const session = useSession();
   const [loadingNetworks, setLoadingNetworks] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { networks, setNetworks } = useNetworkStore();
+  const { showAlert } = useAlertStore();
+
+  const [networkName, setNetworkName] = useState("");
+  const [networkGateway, setNetworkGateway] = useState("");
+  const [networkNetmask, setNetworkNetmask] = useState("");
 
   useEffect(() => {
     async function fetchNetworks() {
@@ -29,7 +35,7 @@ export default function NetworksPage() {
           },
           method: "POST",
           body: JSON.stringify({
-            projectId: "2f582214-4ca7-4774-92f5-e215f3b60787",
+            projectId: "03f1213a-2621-4558-9349-d0767154ac83",
           }),
         });
 
@@ -43,6 +49,42 @@ export default function NetworksPage() {
 
     fetchNetworks();
   }, [session, setNetworks]);
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    const token = session.data?.access_token; // Replace with actual token retrieval
+    const projectId = "03f1213a-2621-4558-9349-d0767154ac83"; // Replace with actual project ID
+
+    if (networkName && networkGateway && networkNetmask) {
+      try {
+        const response = await fetch(`/api/networks/create`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            name: networkName,
+            projectId: projectId,
+            gateway: networkGateway,
+            netmask: networkNetmask,
+            offerId: "04dd3cea-4346-4ca3-8d1b-cdb73f28ec6d",
+            aclId: "022c64eb-fe8d-11ef-ad17-000c2918dc6d",
+          }),
+        });
+
+        if (response.ok) {
+          showAlert("Rede criada com sucesso!", "success");
+        } else {
+          console.error("Failed to create machine");
+          showAlert("Erro na criação da rede.", "error");
+        }
+        setIsModalOpen(false);
+      } catch (e) {
+        console.error("Error creating machine:", e);
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col h-full">
@@ -82,44 +124,62 @@ export default function NetworksPage() {
           />
         </div>
       </div>
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        header={<h2 className="text-lg m-1 font-medium  ">Criar Rede</h2>}
-        footer={
-          <>
-            <Button
-              onClick={() => setIsModalOpen(false)}
-              variant="ghost"
-              className="flex self-start text-md "
-            >
-              Fechar
-            </Button>
-            <Button
-              onClick={() => setIsModalOpen(false)}
-              variant="primary"
-              className="inline-flex text-md col-start-4 col-span-2"
-            >
-              Salvar
-            </Button>
-          </>
-        }
-      >
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col ">
-            <p>Nome da rede</p>
-            <Input placeholder="Digite aqui..." className="mt-2" />
+      <form onSubmit={handleSubmit} id="new-network-form">
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          header={<h2 className="text-lg m-1 font-medium  ">Criar Rede</h2>}
+          footer={
+            <>
+              <Button
+                onClick={() => setIsModalOpen(false)}
+                variant="ghost"
+                className="flex self-start text-md "
+                type="button"
+              >
+                Fechar
+              </Button>
+              <Button
+                variant="primary"
+                className="inline-flex text-md col-start-4 col-span-2"
+                type="submit"
+              >
+                Salvar
+              </Button>
+            </>
+          }
+        >
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col ">
+              <p>Nome da rede</p>
+              <Input
+                value={networkName}
+                onChange={(e) => setNetworkName(e.target.value)}
+                placeholder="Digite aqui..."
+                className="mt-2"
+              />
+            </div>
+            <div className="flex flex-col ">
+              <p>Gateway</p>
+              <Input
+                value={networkGateway}
+                onChange={(e) => setNetworkGateway(e.target.value)}
+                placeholder="Digite aqui..."
+                className="mt-2"
+              />
+            </div>
+            <div className="flex flex-col ">
+              <p>Netmask</p>
+              <Input
+                value={networkNetmask}
+                onChange={(e) => setNetworkNetmask(e.target.value)}
+                placeholder="Digite aqui..."
+                className="mt-2"
+              />
+            </div>
           </div>
-          <div className="flex flex-col ">
-            <p>Gateway</p>
-            <Input placeholder="Digite aqui..." className="mt-2" />
-          </div>
-          <div className="flex flex-col ">
-            <p>Netmask</p>
-            <Input placeholder="Digite aqui..." className="mt-2 " />
-          </div>
-        </div>
-      </Modal>
+        </Modal>
+      </form>
     </div>
   );
 }

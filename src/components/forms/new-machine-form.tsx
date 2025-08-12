@@ -40,7 +40,7 @@ export function NewMachineForm() {
           },
           method: "POST",
           body: JSON.stringify({
-            projectId: "2f582214-4ca7-4774-92f5-e215f3b60787",
+            projectId: "03f1213a-2621-4558-9349-d0767154ac83",
           }),
         });
 
@@ -58,7 +58,7 @@ export function NewMachineForm() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const token = session.data?.access_token; // Replace with actual token retrieval
-    const projectId = "2f582214-4ca7-4774-92f5-e215f3b60787"; // Replace with actual project ID
+    const projectId = "03f1213a-2621-4558-9349-d0767154ac83"; // Replace with actual project ID
 
     if (selectedNetwork && selectedOs && selectedOffer) {
       try {
@@ -73,7 +73,7 @@ export function NewMachineForm() {
             projectId,
             offerId: "a3490a4c-2213-4636-86f1-c021e7da9bea", // selectedOffer.id,
             templateId: "49bbcba0-29ae-46b4-a59b-5c10ebd2b888", // selectedOs.id,
-            networkId: "852daacd-682f-47c3-9dd7-d63afcb4f13c", //selectedNetwork.id,
+            networkId: "99f683b1-ca70-4d4c-941a-317204bf0f7f", //selectedNetwork.id,
           }),
         });
 
@@ -179,7 +179,7 @@ export function NewMachineForm() {
               Fechar
             </Button>
             <Button
-              onClick={() => setIsModalOpen(false)}
+              type="submit"
               variant="primary"
               className="inline-flex text-md col-start-4 col-span-2"
             >

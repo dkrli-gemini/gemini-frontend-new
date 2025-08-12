@@ -6,6 +6,7 @@ import { TabElement } from "@/components/atomic/TabElement";
 import { Header } from "@/components/Header";
 import { useVMStore, VirtualMachine } from "@/stores/vm-store";
 import { ChevronLeft } from "lucide-react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ export default function MachineInfoPage() {
   const params = useParams();
   const machineId = params.machineId as string;
   const [machine, setMachine] = useState<VirtualMachine | null>(null);
+  const session = useSession();
 
   useEffect(() => {
     if (machines.length > 0 && machineId) {
@@ -22,6 +24,27 @@ export default function MachineInfoPage() {
       setMachine(foundMachine || null);
     }
   }, [machineId, machines]);
+
+  const handleConsole = async () => {
+    if (session.data?.access_token) {
+      const response = await fetch("/api/machines/fetch-console", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.data.access_token}`,
+        },
+        body: JSON.stringify({
+          machineId: machine?.id,
+        }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        if (result.message && result.message.consoleUrl) {
+          window.open(result.message.consoleUrl, "_blank");
+        }
+      }
+    }
+  };
 
   if (!machine) {
     return (
@@ -47,7 +70,9 @@ export default function MachineInfoPage() {
         </span>
         <span className="flex gap-2">
           <Button variant="ghost">Alterar senha</Button>
-          <Button variant="primary">Acessar console</Button>
+          <Button variant="primary" onClick={() => handleConsole()}>
+            Acessar console
+          </Button>
         </span>
       </div>
       <div className="flex flex-col justify-center px-20 mt-16">

@@ -89,9 +89,9 @@ const authOptions: NextAuthOptions = {
       return refreshAccessToken(token);
     },
   },
-  pages: {
-    signIn: "/auth/signin",
-  },
+  // pages: {
+  //   signIn: "/auth/signin",
+  // },
 };
 
 const handler = NextAuth(authOptions);
