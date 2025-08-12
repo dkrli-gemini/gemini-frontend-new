@@ -1,15 +1,10 @@
 "use client";
 
-import { ArrowUpDown, SquareTerminal, Terminal } from "lucide-react";
-import { useJobStore } from "@/stores/job.store";
+import { ArrowUpDown } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { Switch } from "./ui/switch";
-import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { StatusBadge } from "./atomic/StatusBadge";
-import { VirtualMachineEntry } from "./atomic/VirtualMachineEntry";
-import { Instance, useVMStore } from "@/stores/vm-store";
+import { VirtualMachineEntry } from "./VirtualMachineEntry";
+import { useVMStore } from "@/stores/vm-store";
 
 export function VirtualMachinesTable() {
   const [loading, setLoading] = useState(false);

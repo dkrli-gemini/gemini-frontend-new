@@ -9,7 +9,7 @@ import { Sidebar } from "@/components/atomic/Sidebar";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 
-import { GlobalAlert } from "@/components/global-alert";
+import { GlobalAlert } from "@/components/atomic/global-alert";
 import { Metadata } from "next";
 import Head from "next/head";
 
