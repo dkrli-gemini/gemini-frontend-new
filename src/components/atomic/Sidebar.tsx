@@ -77,17 +77,19 @@ export const Sidebar = () => {
         </button>
       </span>
       <span className="flex flex-col px-1 gap-2 items mr-2 ">
-        <span
-          onClick={() => setSelected("dashboard")}
-          onMouseEnter={() => handleItemMouseEnter("dashboard")}
-          onMouseLeave={handleItemMouseLeave}
-          className={getItemClassName("dashboard")}
-        >
-          <WindowOutlinedIcon />
-          {isSidebarHovered && (
-            <span className="ml-2 whitespace-nowrap">Dashboard</span>
-          )}
-        </span>
+        <Link href="/dashboard">
+          <span
+            onClick={() => setSelected("dashboard")}
+            onMouseEnter={() => handleItemMouseEnter("dashboard")}
+            onMouseLeave={handleItemMouseLeave}
+            className={getItemClassName("dashboard")}
+          >
+            <WindowOutlinedIcon />
+            {isSidebarHovered && (
+              <span className="ml-2 whitespace-nowrap">Dashboard</span>
+            )}
+          </span>
+        </Link>
         <Link href="machines">
           <span
             onClick={() => setSelected("vms")}
