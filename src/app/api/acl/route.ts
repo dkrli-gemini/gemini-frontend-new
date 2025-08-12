@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.get(
-      `http://localhost:3003/vpcs/list-acl/${domainId}`,
+      `${process.env.API_URL!}/vpcs/list-acl/${domainId}`,
       {
         headers: {
           Authorization: authHeader,

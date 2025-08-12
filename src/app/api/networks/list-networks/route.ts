@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.get(
-      `http://localhost:3003/projects/list-networks/${projectId}`,
+      `${process.env.API_URL!}/projects/list-networks/${projectId}`,
       {
         headers: { Authorization: authHeader },
       }

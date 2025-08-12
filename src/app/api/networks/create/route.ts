@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.post(
-      `http://localhost:3003/network/add-network/${projectId}`,
+      `${process.env.API_URL!}/network/add-network/${projectId}`,
       {
         name: name,
         gateway,

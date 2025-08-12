@@ -8,7 +8,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.get(
-      `http://localhost:3003/resource-limits/${projectId}`,
+      `${process.env.API_URL!}/resource-limits/${projectId}`,
       {
         headers: {
           Authorization: authHeader,

@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.get(
-      `http://localhost:3003/machines/console/${machineId}`,
+      `${process.env.API_URL!}/machines/console/${machineId}`,
       {
         headers: {
           Authorization: authHeader,

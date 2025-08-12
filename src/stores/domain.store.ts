@@ -29,7 +29,7 @@ export const useDomainStore = create<DomainState>((set, get) => ({
     }
     try {
       const response = await axios.get(
-        `http://localhost:3003/domain/${domainId}`,
+        `${process.env.API_URL!}/domain/${domainId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.post(
-      `http://localhost:3003/machines/start-machine`,
+      `${process.env.API_URL!}/machines/start-machine`,
       {
         machineId,
       },

@@ -36,11 +36,14 @@ export const useDomainMemberStore = create<DomainMemberState>((set, get) => ({
       return;
     }
     try {
-      const response = await axios.get("http://localhost:3003/users/projects", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        "${process.env.API_URL!}/users/projects",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       const domainMembers = response.data.message.projectMembers;
       console.log(domainMembers);
       set({

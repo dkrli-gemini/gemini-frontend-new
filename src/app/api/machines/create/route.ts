@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const response = await axios.post(
-      `http://localhost:3003/projects/add-virtual-machine/${projectId}`,
+      `${process.env.API_URL!}/projects/add-virtual-machine/${projectId}`,
       {
         name: name,
         instanceId: offerId,

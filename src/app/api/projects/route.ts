@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
 
   try {
-    const response = await axios.get(`http://localhost:3003/users/projects`, {
+    const response = await axios.get(`${process.env.API_URL!}/users/projects`, {
       headers: {
         Authorization: authHeader,
       },

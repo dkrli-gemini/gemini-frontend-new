@@ -35,7 +35,7 @@ export const createJobStore = () =>
       if (!get().jobId || !get().isPolling) return;
       try {
         const response = await axios.get(
-          `http://localhost:3003/jobs/status/${get().jobId}`,
+          `${process.env.API_URL!}/jobs/status/${get().jobId}`,
           {
             headers: {
               Authorization: `Bearer ${get().token}`,

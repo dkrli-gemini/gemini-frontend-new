@@ -10,7 +10,7 @@ export async function GET(
 
   try {
     const response = await axios.get(
-      `http://localhost:3003/projects/list-machines/${projectId}`,
+      `${process.env.API_URL!}/projects/list-machines/${projectId}`,
       { headers: { Authorization: authHeader } }
     );
 
