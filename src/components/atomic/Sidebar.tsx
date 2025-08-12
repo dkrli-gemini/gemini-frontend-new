@@ -68,7 +68,12 @@ export const Sidebar = () => {
             signIn("keycloak");
           }}
         >
-          <NibloIcon />
+          <div className="flex">
+            <NibloIcon />
+            {/* {isSidebarHovered && (
+                <span className="ml-2 whitespace-nowrap">Niblo Cloud</span>
+              )} */}
+          </div>
         </button>
       </span>
       <span className="flex flex-col px-1 gap-2 items mr-2 ">
@@ -135,7 +140,7 @@ export const Sidebar = () => {
           )}
         </span>
       </span>
-      <span className="flex flex-col justify-end items-start">
+      <span className="flex flex-col justify-end px-1 mr-2  ">
         <span
           onClick={() => setSelected("billing")}
           onMouseEnter={() => handleItemMouseEnter("billing")}

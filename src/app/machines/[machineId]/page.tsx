@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/atomic/Button";
+import DataTable from "@/components/atomic/DataTable";
+import { SearchInput } from "@/components/atomic/SearchInput";
 import { StatusBadge } from "@/components/atomic/StatusBadge";
 import { TabElement } from "@/components/atomic/TabElement";
 import { Header } from "@/components/Header";
@@ -17,6 +19,7 @@ export default function MachineInfoPage() {
   const machineId = params.machineId as string;
   const [machine, setMachine] = useState<VirtualMachine | null>(null);
   const session = useSession();
+  const [selectedTab, setSelectedTab] = useState("info");
 
   useEffect(() => {
     if (machines.length > 0 && machineId) {
@@ -81,55 +84,81 @@ export default function MachineInfoPage() {
             role="tablist"
             className="flex gap-9 border-b flex flex-row justify-center font-medium"
           >
-            <TabElement name="Informações básicas" selected={true} />
-            <TabElement name="Desempenho" selected={false} />
-            <TabElement name="Gerenciar discos" selected={false} />
+            <TabElement
+              name="Informações básicas"
+              selected={selectedTab === "info"}
+              setSelected={() => {
+                setSelectedTab("info");
+              }}
+            />
+            <TabElement
+              name="Desempenho"
+              selected={selectedTab === "desemp"}
+              setSelected={() => {
+                setSelectedTab("desemp");
+              }}
+            />
+            <TabElement
+              name="Gerenciar discos"
+              selected={selectedTab === "volumes"}
+              setSelected={() => {
+                setSelectedTab("volumes");
+              }}
+            />
           </ul>
-          <div className="mt-5 grid grid-cols-4 grid-rows-3 gap-y-12 mt-10">
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">Sistema operacional</p>
-              {machine.template.name}
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1 ">
-              <p className="font-normal text-sm ">Status</p>
-              <StatusBadge
-                status={machine.state}
-                pclassName="inline-flex w-50 h-7 flex justify-center items-center"
+          {selectedTab === "volumes" && (
+            <div className="mt-6">
+              <div className="flex flex-row justify-between mb-5">
+                <SearchInput />
+                <Button variant="primary" className="w-38">
+                  Novo disco
+                </Button>
+              </div>
+              <DataTable
+                headers={["Nome", "Tamanho"]}
+                rows={[{ id: "2", data: ["Disco Extra", "200 GB"] }]}
               />
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">IP</p>
-              {machine.ipAddress}
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">Rede</p>
-              Rede XYZ
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">Offer</p>
-              {machine.instance.name}
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">Memória</p>
-              {machine.instance.memory} MB
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">CPU</p>
-              {machine.instance.cpu} Hz
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">Disco</p>
-              {machine.instance.disk} GB
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">Criação</p>
-              13/12/25 - 00:00:00
-            </span>
-            <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
-              <p className="font-normal text-sm ">Última modificação</p>
-              13/12/25 - 07:12:00
-            </span>
-          </div>
+            </div>
+          )}
+          {selectedTab == "info" && (
+            <div className="mt-5 grid grid-cols-4 grid-rows-3 gap-y-12 mt-10">
+              <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
+                <p className="font-normal text-sm ">Sistema operacional</p>
+                {machine.template.name}
+              </span>
+              <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1 ">
+                <p className="font-normal text-sm ">Status</p>
+                <StatusBadge
+                  status={machine.state}
+                  pclassName="inline-flex w-50 h-7 flex justify-center items-center"
+                />
+              </span>
+              <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
+                <p className="font-normal text-sm ">IP</p>
+                {machine.ipAddress}
+              </span>
+              <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
+                <p className="font-normal text-sm ">Rede</p>
+                Rede XYZ
+              </span>
+              <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
+                <p className="font-normal text-sm ">Offer</p>
+                {machine.instance.name}
+              </span>
+              <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
+                <p className="font-normal text-sm ">Memória</p>
+                {machine.instance.memory} MB
+              </span>
+              <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
+                <p className="font-normal text-sm ">CPU</p>
+                {machine.instance.cpu} Hz
+              </span>
+              <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
+                <p className="font-normal text-sm ">Disco</p>
+                {machine.instance.disk} GB
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </div>
