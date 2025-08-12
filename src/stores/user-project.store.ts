@@ -20,11 +20,15 @@ export interface UserProjectState {
   currentProjectId: string | null;
   setCurrentProjectId: (id: string | null) => void;
   setProjects: (projects: UserProject[]) => void;
+  clearProjects: () => void;
 }
 
 export const useProjectsStore = create<UserProjectState>()(
   persist(
     (set, get) => ({
+      clearProjects: () => {
+        set({ projects: [] });
+      },
       projects: [],
       currentProjectId: null,
       setCurrentProjectId: (id: string | null) => {

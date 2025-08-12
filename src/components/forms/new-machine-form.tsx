@@ -12,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
 import { Modal } from "../atomic/Modal";
+import { useProjectsStore } from "@/stores/user-project.store";
 
 export function NewMachineForm() {
   const session = useSession();
@@ -25,6 +26,8 @@ export function NewMachineForm() {
   const [loadingNetworks, setLoadingNetworks] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { networks, setNetworks } = useNetworkStore();
+
+  const { currentProjectId } = useProjectsStore();
 
   const router = useRouter();
   const { showAlert } = useAlertStore();
@@ -40,7 +43,7 @@ export function NewMachineForm() {
           },
           method: "POST",
           body: JSON.stringify({
-            projectId: "03f1213a-2621-4558-9349-d0767154ac83",
+            projectId: currentProjectId,
           }),
         });
 
@@ -58,7 +61,7 @@ export function NewMachineForm() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const token = session.data?.access_token; // Replace with actual token retrieval
-    const projectId = "03f1213a-2621-4558-9349-d0767154ac83"; // Replace with actual project ID
+    const projectId = currentProjectId; // Replace with actual project ID
 
     if (selectedNetwork && selectedOs && selectedOffer) {
       try {

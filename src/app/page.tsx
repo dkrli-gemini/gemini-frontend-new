@@ -48,6 +48,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchProjects() {
       setLoading(true);
+
       setCurrentProjectId(null);
       if (session?.access_token) {
         const response = await fetch("/api/projects", {
@@ -80,7 +81,7 @@ export default function Home() {
     }
 
     fetchProjects();
-  }, [session, setProjects]);
+  }, [session, setProjects, setCurrentProjectId]);
 
   return (
     <div className="flex flex-col h-full">
@@ -99,7 +100,7 @@ export default function Home() {
           {projects.map((project) => (
             <ProjectComponent
               key={project.id}
-              id={project.id}
+              id={project.project.id}
               name={project.project.name}
             />
           ))}

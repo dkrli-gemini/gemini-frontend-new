@@ -12,6 +12,7 @@ import { Header } from "@/components/Header";
 import { useAclStore } from "@/stores/acl.store";
 import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
+import { useProjectsStore } from "@/stores/user-project.store";
 import AddIcon from "@mui/icons-material/Add";
 import { useSession } from "next-auth/react";
 import { FormEvent, useEffect, useState } from "react";
@@ -28,6 +29,7 @@ export default function NetworksPage() {
   const [networkGateway, setNetworkGateway] = useState("");
   const [networkNetmask, setNetworkNetmask] = useState("");
   const [aclId, setAclId] = useState("");
+  const { currentProjectId } = useProjectsStore();
 
   useEffect(() => {
     async function fetchNetworks() {
@@ -40,7 +42,7 @@ export default function NetworksPage() {
           },
           method: "POST",
           body: JSON.stringify({
-            projectId: "03f1213a-2621-4558-9349-d0767154ac83",
+            projectId: currentProjectId,
           }),
         });
 
@@ -58,7 +60,7 @@ export default function NetworksPage() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const token = session.data?.access_token;
-    const projectId = "03f1213a-2621-4558-9349-d0767154ac83"; // Replace with actual project ID
+    const projectId = currentProjectId; // Replace with actual project ID
 
     if (networkName && networkGateway && networkNetmask && aclId) {
       try {

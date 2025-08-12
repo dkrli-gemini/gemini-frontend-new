@@ -120,11 +120,11 @@ export default function AclComponent(props: AclComponentProps) {
 
               <span className="flex flex-row gap-6 mt-2">
                 <span>
-                  <p>Porta de entrada</p>
+                  <p>Porta inicial</p>
                   <Input />
                 </span>
                 <span>
-                  <p>Porta de saída</p>
+                  <p>Porta final</p>
                   <Input />
                 </span>
               </span>

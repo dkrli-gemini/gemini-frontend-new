@@ -13,6 +13,7 @@ import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useAclStore } from "@/stores/acl.store";
 import { useSession } from "next-auth/react";
+import { useProjectsStore } from "@/stores/user-project.store";
 
 export default function AclPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +21,7 @@ export default function AclPage() {
   const [loading, setLoading] = useState(false);
   const session = useSession();
   const { acls, setAcl } = useAclStore();
+  const { currentProjectId } = useProjectsStore();
 
   useEffect(() => {
     async function fetchAcls() {
@@ -32,7 +34,7 @@ export default function AclPage() {
             Authorization: `Bearer ${session.data.access_token}`,
           },
           body: JSON.stringify({
-            domainId: "03f1213a-2621-4558-9349-d0767154ac83",
+            domainId: currentProjectId,
           }),
         });
 

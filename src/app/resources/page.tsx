@@ -54,6 +54,7 @@ export default function ResourcesPage() {
   useEffect(() => {
     async function fetchResourceLimits() {
       setLoading(true);
+      console.log(projectStore.currentProjectId);
       if (session.data?.access_token) {
         const response = await fetch(`/api/resource-limits`, {
           method: "POST",
@@ -62,7 +63,7 @@ export default function ResourcesPage() {
             Authorization: `Bearer ${session.data.access_token}`,
           },
           body: JSON.stringify({
-            projectId: "03f1213a-2621-4558-9349-d0767154ac83",
+            projectId: projectStore.currentProjectId,
           }),
         });
 
