@@ -10,11 +10,44 @@ import { Modal } from "@/components/atomic/Modal";
 import { Input } from "@/components/atomic/Input";
 
 import Head from "next/head";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAclStore } from "@/stores/acl.store";
+import { useSession } from "next-auth/react";
 
 export default function AclPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const session = useSession();
+  const { acls, setAcl } = useAclStore();
+
+  useEffect(() => {
+    async function fetchAcls() {
+      setLoading(true);
+      if (session.data?.access_token) {
+        const response = await fetch(`/api/acl`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data.access_token}`,
+          },
+          body: JSON.stringify({
+            domainId: "03f1213a-2621-4558-9349-d0767154ac83",
+          }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log(result);
+
+          setAcl(result.message.lists);
+        }
+      }
+      setLoading(false);
+    }
+
+    fetchAcls();
+  }, [session, setAcl]);
 
   return (
     <div className="flex flex-col h-full">
@@ -23,9 +56,9 @@ export default function AclPage() {
       <PageHeader2
         title="ACL's"
         el1name="Total de listas"
-        el1value={"0"}
+        el1value={String(acls.length)}
         el2name="Listas em uso"
-        el2value={"0"}
+        el2value={"1"}
       />
 
       <div className="flex flex-col  -translate-y-10">
@@ -36,8 +69,16 @@ export default function AclPage() {
               <AddIcon /> Nova ACL
             </Button>
           </div>
-
-          <AclComponent />
+          <div className="flex flex-col gap-5">
+            {acls.map((acl) => (
+              <AclComponent
+                name={acl.name}
+                description={acl.description}
+                key={acl.id}
+                rules={acl.rules}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>

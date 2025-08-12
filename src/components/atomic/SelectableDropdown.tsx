@@ -28,23 +28,33 @@ export function SelectableDropdown({
   placeholder = "Select an option",
 }: SelectableDropdownProps) {
   const [selectedItem, setSelectedItem] = React.useState<Item | null>(null);
+  const [isOpen, setIsOpen] = React.useState(false);
 
   const handleSelect = (item: Item) => {
     setSelectedItem(item);
     onSelect(item.id);
+    setIsOpen(false);
   };
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="outlined" className="w-full justify-between">
+        <Button
+          variant="outlined"
+          className="w-full justify-between text-normal-md font-normal placeholder-[#999999] text-[#999999] bg-[#F2F2F2]"
+        >
           {selectedItem ? selectedItem.name : placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-[--radix-dropdown-menu-trigger-width]" side="bottom">
+      <DropdownMenuContent side="bottom">
         {items.map((item) => (
-          <DropdownMenuItem key={item.id} onClick={() => handleSelect(item)}>
+          <DropdownMenuItem
+            key={item.id}
+            onClick={() => {
+              handleSelect(item);
+            }}
+          >
             {item.name}
           </DropdownMenuItem>
         ))}

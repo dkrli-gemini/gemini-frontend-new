@@ -1,3 +1,5 @@
+"use client";
+
 import { useAlertStore } from "@/stores/alert.store";
 import { useEffect } from "react";
 

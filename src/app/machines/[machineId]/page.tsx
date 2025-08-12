@@ -139,7 +139,7 @@ export default function MachineInfoPage() {
               </span>
               <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
                 <p className="font-normal text-sm ">Rede</p>
-                Rede XYZ
+                {/* {machine.networkName} */}
               </span>
               <span className="font-semibold text-lg text-[#4C4C4C] flex flex-col gap-1">
                 <p className="font-normal text-sm ">Offer</p>

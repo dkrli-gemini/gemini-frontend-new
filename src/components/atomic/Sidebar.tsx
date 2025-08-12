@@ -140,8 +140,8 @@ export const Sidebar = () => {
           )}
         </span>
       </span>
-      <span className="flex flex-col justify-end px-1 mr-2  ">
-        <span
+      <span className="flex flex-col justify-end px-1 mr-2  mb-2 gap-2">
+        {/* <span
           onClick={() => setSelected("billing")}
           onMouseEnter={() => handleItemMouseEnter("billing")}
           onMouseLeave={handleItemMouseLeave}
@@ -151,7 +151,7 @@ export const Sidebar = () => {
           {isSidebarHovered && (
             <span className="ml-2 whitespace-nowrap">Billing</span>
           )}
-        </span>
+        </span> */}
         <Link href="/resources">
           {" "}
           <span
@@ -162,7 +162,7 @@ export const Sidebar = () => {
           >
             <DataUsageIcon />
             {isSidebarHovered && (
-              <span className="ml-2 whitespace-nowrap">Usage</span>
+              <span className="ml-2 whitespace-nowrap">Recursos e limites</span>
             )}
           </span>
         </Link>

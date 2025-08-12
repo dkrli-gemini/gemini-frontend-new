@@ -10,8 +10,15 @@ import { StatusBadge } from "./StatusBadge";
 import { Input } from "./Input";
 import { Modal } from "./Modal";
 import { SelectableDropdown } from "./SelectableDropdown";
+import { AclRule } from "@/stores/acl.store";
 
-export default function AclComponent() {
+export interface AclComponentProps {
+  name: string;
+  description: string;
+  rules: AclRule[];
+}
+
+export default function AclComponent(props: AclComponentProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -21,24 +28,21 @@ export default function AclComponent() {
   }, []);
 
   return (
-    <div>
+    <div className="flex flex-col">
       <button
         onClick={() => setIsOpen(!isOpen)}
         id="heading"
         aria-controls="body"
-        className="border rounded-lg grid grid-cols-3 p-14 cursor-pointer hover:bg-gray-100"
+        className={`border rounded-lg grid grid-cols-3 p-14 cursor-pointer hover:bg-gray-100 flex-1 ${
+          isOpen ? "bg-gray-100" : "bg-white"
+        }`}
       >
-        <div className="col-span-1 flex items-center">
-          <h2 className="text-2xl font-semibold">ACL ABC</h2>
+        <div className="col-span-1 flex  items-center">
+          <h2 className="text-2xl font-semibold">{props.name}</h2>
         </div>
-        <div className="col-span-2 flex justify-between items-center">
-          <div className="pr-28">
-            <p>
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Animi
-              ut, harum officiis nulla praesentium delectus dolorum eum
-              laudantium et beatae deserunt, at tempora cum ad minima non
-              repellendus nisi corporis.
-            </p>
+        <div className="col-span-2 flex justify-between ">
+          <div className="pr-28   ">
+            <p>{props.description}</p>
           </div>
           <div
             className={`${
@@ -66,21 +70,21 @@ export default function AclComponent() {
             Nova Regra
           </Button>
         </div>
-        <DataTable
-          headers={["IP", "Ação", "Protocolo", "Porta", "Tipo"]}
-          rows={[
-            {
-              id: "",
+        <div className="px-8 mb-8">
+          <DataTable
+            headers={["IP", "Ação", "Protocolo", "Porta", "Tipo"]}
+            rows={props.rules.map((r) => ({
+              id: r.id,
               data: [
-                "192.168.0.1",
-                <StatusBadge status="ALLOW" key={""} />,
-                "TCP",
-                "80-80",
-                "Entrada",
+                r.cidr,
+                <StatusBadge status={r.action} key={r.id} />,
+                r.protocol,
+                `${r.startPort}-${r.endPort}`,
+                r.trafficType === "egress" ? "Saída" : "Entrada",
               ],
-            },
-          ]}
-        />
+            }))}
+          />
+        </div>
       </div>
       {isClient &&
         createPortal(
@@ -147,6 +151,18 @@ export default function AclComponent() {
                     placeholder="Selecione..."
                   />
                 </span>
+              </span>
+              <span className="flex flex-col flex-1 mt-2">
+                <p>Protocolo</p>
+                <SelectableDropdown
+                  items={[
+                    { id: "deny", name: "UDP" },
+                    { id: "allow", name: "TCP" },
+                    { id: "allow", name: "ALL" },
+                  ]}
+                  onSelect={() => {}}
+                  placeholder="Selecione..."
+                />
               </span>
             </div>
           </Modal>,

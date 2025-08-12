@@ -1,3 +1,5 @@
+import { useAclStore } from "@/stores/acl.store";
+
 export interface PageHeader2Props {
   title: string;
   el1name: string;
@@ -19,7 +21,7 @@ export const PageHeader2 = (props: PageHeader2Props) => {
           </span>
           <span className="text-[#737373]">{props.el1name}</span>
         </div>
-        <div className="flex justify-center items-center flex-col border-r">
+        <div className="flex justify-center items-center flex-col ">
           <span className="text-4xl font-bold text-[#4297D3] mb-2">
             {props.el2value}
           </span>

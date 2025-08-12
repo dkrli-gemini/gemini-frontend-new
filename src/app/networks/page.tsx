@@ -7,7 +7,9 @@ import { Modal } from "@/components/atomic/Modal";
 import { PageHeader } from "@/components/atomic/PageHeader";
 import { PageHeader2 } from "@/components/atomic/PageHeader2";
 import { SearchInput } from "@/components/atomic/SearchInput";
+import { SelectableDropdown } from "@/components/atomic/SelectableDropdown";
 import { Header } from "@/components/Header";
+import { useAclStore } from "@/stores/acl.store";
 import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
 import AddIcon from "@mui/icons-material/Add";
@@ -20,10 +22,12 @@ export default function NetworksPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { networks, setNetworks } = useNetworkStore();
   const { showAlert } = useAlertStore();
+  const { acls } = useAclStore();
 
   const [networkName, setNetworkName] = useState("");
   const [networkGateway, setNetworkGateway] = useState("");
   const [networkNetmask, setNetworkNetmask] = useState("");
+  const [aclId, setAclId] = useState("");
 
   useEffect(() => {
     async function fetchNetworks() {
@@ -53,10 +57,10 @@ export default function NetworksPage() {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    const token = session.data?.access_token; // Replace with actual token retrieval
+    const token = session.data?.access_token;
     const projectId = "03f1213a-2621-4558-9349-d0767154ac83"; // Replace with actual project ID
 
-    if (networkName && networkGateway && networkNetmask) {
+    if (networkName && networkGateway && networkNetmask && aclId) {
       try {
         const response = await fetch(`/api/networks/create`, {
           method: "POST",
@@ -70,7 +74,7 @@ export default function NetworksPage() {
             gateway: networkGateway,
             netmask: networkNetmask,
             offerId: "04dd3cea-4346-4ca3-8d1b-cdb73f28ec6d",
-            aclId: "022c64eb-fe8d-11ef-ad17-000c2918dc6d",
+            aclId: aclId,
           }),
         });
 
@@ -172,6 +176,17 @@ export default function NetworksPage() {
                 onChange={(e) => setNetworkNetmask(e.target.value)}
                 placeholder="Digite aqui..."
                 className="mt-2"
+              />
+            </div>
+            <div className="flex flex-col ">
+              <p className="mb-2">ACL List</p>
+              <SelectableDropdown
+                items={acls.map((acl) => ({
+                  id: acl.id,
+                  name: acl.name,
+                }))}
+                placeholder="Selecione uma ACL..."
+                onSelect={(id: string) => setAclId(id)}
               />
             </div>
           </div>
