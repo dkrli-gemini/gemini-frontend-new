@@ -5,6 +5,7 @@ import DataTable from "@/components/atomic/DataTable";
 import { Input } from "@/components/atomic/Input";
 import { Modal } from "@/components/atomic/Modal";
 import { PageHeader } from "@/components/atomic/PageHeader";
+import { PageHeader2 } from "@/components/atomic/PageHeader2";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import { Header } from "@/components/Header";
 import { useAlertStore } from "@/stores/alert.store";
@@ -90,16 +91,12 @@ export default function NetworksPage() {
     <div className="flex flex-col h-full">
       <Header />
 
-      <PageHeader
+      <PageHeader2
         title="Redes"
         el1name="Total de redes"
         el1value={String(networks.length)}
-        el2name="Redes online"
+        el2name="Redes em uso"
         el2value={String(networks.length)}
-        el3name="Redes em uso"
-        el3value={String(networks.length)}
-        el4name="Erros"
-        el4value="0"
       />
 
       <div className="flex flex-col  -translate-y-10">

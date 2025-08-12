@@ -48,6 +48,10 @@
   --color-brand-800: #061624;
 }
 
+nextjs-portal {
+  display: none;
+}
+
 :root {
   --radius: 0.625rem;
   --card: oklch(1 0 0);

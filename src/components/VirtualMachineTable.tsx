@@ -14,7 +14,6 @@ import { Instance, useVMStore } from "@/stores/vm-store";
 export function VirtualMachinesTable() {
   const [loading, setLoading] = useState(false);
   const { machines, setMachines } = useVMStore();
-  const jobStore = useJobStore();
   const { data: session, status } = useSession();
 
   useEffect(() => {
