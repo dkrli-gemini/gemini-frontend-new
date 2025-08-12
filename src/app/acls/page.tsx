@@ -6,12 +6,14 @@ import { PageHeader2 } from "@/components/atomic/PageHeader2";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import { Header } from "@/components/Header";
 import AddIcon from "@mui/icons-material/Add";
+import { Modal } from "@/components/atomic/Modal";
+import { Input } from "@/components/atomic/Input";
 
 import Head from "next/head";
 import { useState } from "react";
 
 export default function AclPage() {
-  const [modalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -30,11 +32,7 @@ export default function AclPage() {
         <div className="px-21">
           <div className="flex justify-between mb-8">
             <SearchInput />
-            <Button
-              variant="primary"
-              className="w-fit"
-              onClick={() => setIsModalOpen(true)}
-            >
+            <Button variant="primary" className="w-fit">
               <AddIcon /> Nova ACL
             </Button>
           </div>

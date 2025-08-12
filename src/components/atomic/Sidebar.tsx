@@ -135,7 +135,7 @@ export const Sidebar = () => {
           )}
         </span>
       </span>
-      <span className="flex flex-col justify-end ">
+      <span className="flex flex-col justify-end items-start">
         <span
           onClick={() => setSelected("billing")}
           onMouseEnter={() => handleItemMouseEnter("billing")}

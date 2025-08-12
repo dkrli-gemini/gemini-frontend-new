@@ -22,8 +22,8 @@ export const Modal: React.FC<ModalProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/30 z-50 flex justify-center items-center">
-      <div className="bg-white rounded-lg shadow-lg flex flex-col w-full max-w-lg ">
+    <div className="fixed inset-0 bg-black/30 z-50 flex justify-center items-center absolute">
+      <div className="bg-white rounded-lg shadow-lg flex flex-col w-120 max-w-6xl ">
         <div className="p-4 border-b flex justify-between items-center bg-[#F2F2F2] rounded-t-lg">
           <div>{header}</div>
         </div>

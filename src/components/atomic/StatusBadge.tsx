@@ -13,6 +13,7 @@ export function StatusBadge({ status, pclassName }: StatusBadgeProps) {
     STARTING: "bg-yellow-100 text-yellow-700",
     STOPPING: "bg-yellow-100 text-yellow-700",
     Rodando: "bg-green-100 text-green-700",
+    ALLOW: "bg-green-100 text-green-700",
   };
 
   const statusTexts: Record<Status, string> = {
@@ -20,6 +21,7 @@ export function StatusBadge({ status, pclassName }: StatusBadgeProps) {
     STOPPED: "Parada",
     STARTING: "Iniciando...",
     STOPPING: "Desligando...",
+    ALLOW: "Allow",
   };
 
   return (
