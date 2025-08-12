@@ -55,12 +55,12 @@ export default function NetworksPage() {
     }
 
     fetchNetworks();
-  }, [session, setNetworks]);
+  }, [session, setNetworks, currentProjectId]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const token = session.data?.access_token;
-    const projectId = currentProjectId; // Replace with actual project ID
+    const projectId = currentProjectId;
 
     if (networkName && networkGateway && networkNetmask && aclId) {
       try {

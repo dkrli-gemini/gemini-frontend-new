@@ -6,6 +6,7 @@ import { SearchInput } from "@/components/atomic/SearchInput";
 import { StatusBadge } from "@/components/atomic/StatusBadge";
 import { TabElement } from "@/components/atomic/TabElement";
 import { Header } from "@/components/Header";
+import { useAlertStore } from "@/stores/alert.store";
 import { useVMStore, VirtualMachine } from "@/stores/vm-store";
 import { ChevronLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -20,6 +21,7 @@ export default function MachineInfoPage() {
   const [machine, setMachine] = useState<VirtualMachine | null>(null);
   const session = useSession();
   const [selectedTab, setSelectedTab] = useState("info");
+  const { showAlert } = useAlertStore();
 
   useEffect(() => {
     if (machines.length > 0 && machineId) {
@@ -29,6 +31,10 @@ export default function MachineInfoPage() {
   }, [machineId, machines]);
 
   const handleConsole = async () => {
+    if (machine?.state != "RUNNING") {
+      showAlert("A máquina deve estar ligada para acessar o console.");
+    }
+
     if (session.data?.access_token) {
       const response = await fetch("/api/machines/fetch-console", {
         method: "POST",

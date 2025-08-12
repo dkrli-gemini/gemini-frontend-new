@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { useAclStore } from "@/stores/acl.store";
 import { useSession } from "next-auth/react";
 import { useProjectsStore } from "@/stores/user-project.store";
+import { createPortal } from "react-dom";
 
 export default function AclPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,7 +23,6 @@ export default function AclPage() {
   const session = useSession();
   const { acls, setAcl } = useAclStore();
   const { currentProjectId } = useProjectsStore();
-  
 
   useEffect(() => {
     async function fetchAcls() {
@@ -50,12 +50,11 @@ export default function AclPage() {
     }
 
     fetchAcls();
-  }, [session, setAcl]);
+  }, [session, setAcl, currentProjectId]);
 
   return (
     <div className="flex flex-col h-full">
       <Header />
-
       <PageHeader2
         title="Firewall"
         el1name="Total de listas"
@@ -63,12 +62,15 @@ export default function AclPage() {
         el2name="Listas em uso"
         el2value={"1"}
       />
-
       <div className="flex flex-col  -translate-y-10">
         <div className="px-21">
           <div className="flex justify-between mb-8">
             <SearchInput />
-            <Button variant="primary" className="w-fit">
+            <Button
+              variant="primary"
+              className="w-fit"
+              onClick={() => setIsModalOpen(true)}
+            >
               <AddIcon /> Nova ACL
             </Button>
           </div>
@@ -84,6 +86,44 @@ export default function AclPage() {
           </div>
         </div>
       </div>
+      {createPortal(
+        <Modal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          header={<h2 className="text-lg m-1 font-medium  ">Criar nova ACL</h2>}
+          footer={
+            <>
+              <Button
+                onClick={() => setIsModalOpen(false)}
+                variant="ghost"
+                className="flex self-start text-md "
+                type="button"
+              >
+                Fechar
+              </Button>
+              <Button
+                variant="primary"
+                className="inline-flex text-md col-start-4 col-span-2"
+                type="submit"
+              >
+                Salvar
+              </Button>
+            </>
+          }
+        >
+          <div className="flex flex-col gap-5">
+            <span className="flex-col gap-1">
+              <p>Nome</p>
+              <Input />
+            </span>
+            <span className="flex-col gap-1">
+              <p>Descrição</p>
+              <Input className="h-30" />
+            </span>
+          </div>
+        </Modal>,
+        document.body
+      )}
     </div>
   );
 }
