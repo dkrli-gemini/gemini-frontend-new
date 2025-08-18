@@ -5,11 +5,11 @@ import DataTable from "@/components/atomic/DataTable";
 import { Input } from "@/components/atomic/Input";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import SelectableDataTable from "@/components/atomic/SelectableDataTable";
-import { Header } from "@/components/Header";
 import { ChevronLeft } from "lucide-react";
 0;
 import Link from "next/link";
 import { NewMachineForm } from "@/components/forms/new-machine-form";
+import { Header } from "@/components/atomic/Header";
 
 export default function CreateMachinePage() {
   return (
@@ -23,7 +23,12 @@ export default function CreateMachinePage() {
           <h2 className="font-bold text-3xl">Criar máquina</h2>
         </span>
         <span className="flex gap-2">
-          <Button variant="primary" className="px-6" form="new-machine-form" type="submit">
+          <Button
+            variant="primary"
+            className="px-6"
+            form="new-machine-form"
+            type="submit"
+          >
             Salvar
           </Button>
         </span>

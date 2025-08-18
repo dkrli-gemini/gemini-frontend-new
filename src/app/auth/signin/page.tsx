@@ -1,4 +1,5 @@
-import { getProviders, signIn } from "next-auth/react";
+import { getProviders } from "next-auth/react";
+import SignInButton from "@/components/atomic/SignInButton";
 
 export default async function SignIn() {
   const providers = await getProviders();
@@ -10,12 +11,7 @@ export default async function SignIn() {
         {providers &&
           Object.values(providers).map((provider) => (
             <div key={provider.name} className="mt-4">
-              <button
-                onClick={() => signIn(provider.id)}
-                className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
-              >
-                Sign in with {provider.name}
-              </button>
+              <SignInButton provider={provider} />
             </div>
           ))}
       </div>

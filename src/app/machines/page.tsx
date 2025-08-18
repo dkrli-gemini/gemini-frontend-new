@@ -3,7 +3,6 @@
 import { Button } from "@/components/atomic/Button";
 import { PageHeader } from "@/components/atomic/PageHeader";
 import { SearchInput } from "@/components/atomic/SearchInput";
-import { Header } from "@/components/Header";
 import { VirtualMachinesTable } from "@/components/atomic/VirtualMachineTable";
 import { Search, Plus } from "lucide-react";
 import AddIcon from "@mui/icons-material/Add";
@@ -13,6 +12,7 @@ import { useVMStore } from "@/stores/vm-store";
 import { signIn, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useAlertStore } from "@/stores/alert.store";
+import { Header } from "@/components/atomic/Header";
 
 export default function MachinesPage() {
   const vmStore = useVMStore();

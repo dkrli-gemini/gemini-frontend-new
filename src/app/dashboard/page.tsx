@@ -1,12 +1,12 @@
 "use client";
 
+import { Header } from "@/components/atomic/Header";
 import { PageHeader } from "@/components/atomic/PageHeader";
 import ProgressBox, {
   NamedProgressBarProps,
   ProgressBarProps,
   ProgressBoxProps,
 } from "@/components/atomic/ProgressBox";
-import { Header } from "@/components/Header";
 import Head from "next/head";
 
 export default function DashboardPage() {

@@ -3,7 +3,6 @@
 import { Button } from "@/components/atomic/Button";
 import { PageHeader } from "@/components/atomic/PageHeader";
 import { SearchInput } from "@/components/atomic/SearchInput";
-import { Header } from "@/components/Header";
 import { VirtualMachinesTable } from "@/components/atomic/VirtualMachineTable";
 import { Search, Plus, ArrowRight, ChevronRight } from "lucide-react";
 import AddIcon from "@mui/icons-material/Add";
@@ -16,6 +15,7 @@ import {
 import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { redirect } from "next/navigation";
+import { Header } from "@/components/atomic/Header";
 
 export interface ProjectComponentProps {
   name: string;

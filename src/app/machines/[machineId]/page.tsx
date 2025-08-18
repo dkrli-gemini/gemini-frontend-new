@@ -2,10 +2,10 @@
 
 import { Button } from "@/components/atomic/Button";
 import DataTable from "@/components/atomic/DataTable";
+import { Header } from "@/components/atomic/Header";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import { StatusBadge } from "@/components/atomic/StatusBadge";
 import { TabElement } from "@/components/atomic/TabElement";
-import { Header } from "@/components/Header";
 import { useAlertStore } from "@/stores/alert.store";
 import { useVMStore, VirtualMachine } from "@/stores/vm-store";
 import { ChevronLeft } from "lucide-react";

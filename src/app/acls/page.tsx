@@ -4,7 +4,6 @@ import AclComponent from "@/components/atomic/AclComponent";
 import { Button } from "@/components/atomic/Button";
 import { PageHeader2 } from "@/components/atomic/PageHeader2";
 import { SearchInput } from "@/components/atomic/SearchInput";
-import { Header } from "@/components/Header";
 import AddIcon from "@mui/icons-material/Add";
 import { Modal } from "@/components/atomic/Modal";
 import { Input } from "@/components/atomic/Input";
@@ -15,6 +14,7 @@ import { useAclStore } from "@/stores/acl.store";
 import { useSession } from "next-auth/react";
 import { useProjectsStore } from "@/stores/user-project.store";
 import { createPortal } from "react-dom";
+import { Header } from "@/components/atomic/Header";
 
 export default function AclPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
