@@ -31,5 +31,9 @@ declare module "next-auth/jwt" {
     realm_access?: {
       roles: string[];
     };
+    exp?: number;
+    iat?: number;
+    jti?: string;
+    sid?: string;
   }
 }

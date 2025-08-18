@@ -19,7 +19,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   const pathname = usePathname();
-  const isRootPage = pathname === "/home" || pathname === "/auth/login";
+  const isRootPage = pathname === "/home" || pathname === "/auth/signin";
   useEffect(() => {
     document.title = "Niblo Cloud";
   }, []);

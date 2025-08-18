@@ -24,11 +24,19 @@ async function refreshAccessToken(token: any) {
       throw refreshedTokens;
     }
 
+    const decoded = jwtDecode(refreshedTokens.access_token) as any;
+
     return {
       ...token,
       access_token: refreshedTokens.access_token,
       expires_at: Math.floor(Date.now() / 1000) + refreshedTokens.expires_in,
-      exp: Math.floor(Date.now() / 1000) + refreshedTokens.expires_in,
+      exp: decoded.exp,
+      iat: decoded.iat,
+      jti: decoded.jti,
+      sid: decoded.sid,
+      sub: decoded.sub,
+      name: decoded.name,
+      email: decoded.email,
       refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
     };
   } catch (error) {
@@ -52,7 +60,7 @@ const authOptions: NextAuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async session({ session, token, user }) {
+    async session({ session, token }) {
       if (token.sub) {
         session.user!.id = token.sub;
       }
@@ -62,11 +70,8 @@ const authOptions: NextAuthOptions = {
       if (token.access_token) {
         session.access_token = token.access_token;
       }
-      if (token.error) {
-        session.error = token.error as string;
-      }
-      if (token.expires_at) {
-        session.expires = new Date(token.expires_at * 1000).toISOString();
+      if (token.exp) {
+        session.expires = new Date(token.exp * 1000).toISOString();
       }
       return session;
     },
@@ -76,18 +81,30 @@ const authOptions: NextAuthOptions = {
         token.id_token = account.id_token;
         token.expires_at = account.expires_at;
         token.refreshToken = account.refresh_token;
-      }
-      if (profile) {
-        token.sub = profile?.sub;
-        token.name = profile?.name;
-        token.email = profile?.email;
+
+        const decoded = jwtDecode(account.access_token) as any;
+
+        token.exp = decoded.exp;
+        token.iat = decoded.iat;
+        token.jti = decoded.jti;
+        token.sid = decoded.sid;
+        token.sub = decoded.sub;
+        token.name = decoded.name;
+        token.email = decoded.email;
+        token.realm_access = decoded.realm_access;
       }
 
-      if (Date.now() < token.expires_at! * 1000) {
+      if (Date.now() < (token.exp! * 1000 || 0)) {
         return token;
       }
 
-      return refreshAccessToken(token);
+      const refreshedToken = await refreshAccessToken(token);
+
+      if (refreshedToken.error) {
+        return null;
+      }
+
+      return refreshedToken;
     },
   },
   // pages: {

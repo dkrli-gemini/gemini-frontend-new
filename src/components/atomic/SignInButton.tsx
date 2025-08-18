@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { Button } from "./Button";
 
 interface Provider {
   id: string;
@@ -9,11 +10,11 @@ interface Provider {
 
 export default function SignInButton({ provider }: { provider: Provider }) {
   return (
-    <button
+    <Button
+      variant="primary"
       onClick={() => signIn(provider.id, { callbackUrl: "/home" })}
-      className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded-full hover:bg-blue-700 focus:outline-none focus:shadow-outline"
     >
       Sign in with {provider.name}
-    </button>
+    </Button>
   );
 }
