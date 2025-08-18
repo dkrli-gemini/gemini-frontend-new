@@ -30,7 +30,7 @@ const ProjectComponent = (props: ProjectComponentProps) => {
       className="cursor-pointer px-7 border rounded-lg py-6 flex justify-between border-[#E6E6E6] hover:border-black transition-colors duration-200"
       onClick={() => {
         setCurrentProjectId(props.id);
-        redirect("/machines");
+        redirect("/dashboard");
       }}
     >
       <h2 className="font-semibold text-xl">{props.name}</h2>
@@ -39,7 +39,7 @@ const ProjectComponent = (props: ProjectComponentProps) => {
   );
 };
 
-export default function Home() {
+export default function HomePage() {
   const [loading, setLoading] = useState<boolean>(false);
   const { projects, setProjects, setCurrentProjectId } = useProjectsStore();
   const { data: session, status } = useSession();

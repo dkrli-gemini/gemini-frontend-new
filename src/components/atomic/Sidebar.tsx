@@ -63,20 +63,16 @@ export const Sidebar = () => {
       onMouseLeave={handleSidebarMouseLeave}
     >
       <span className="p-3">
-        <button
-          onClick={() => {
-            signIn("keycloak");
-          }}
-        >
+        <Link href={"/home"}>
           <div className="flex">
             <NibloIcon />
             {/* {isSidebarHovered && (
                 <span className="ml-2 whitespace-nowrap">Niblo Cloud</span>
               )} */}
           </div>
-        </button>
+        </Link>
       </span>
-      <span className="flex flex-col px-1 gap-2 items mr-2 ">
+      <span className="flex flex-col px-1 gap-2 items mr-2">
         <Link href="/dashboard">
           <span
             onClick={() => setSelected("dashboard")}
