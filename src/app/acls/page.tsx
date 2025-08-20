@@ -9,6 +9,7 @@ import { Modal } from "@/components/atomic/Modal";
 import { Input } from "@/components/atomic/Input";
 
 import Head from "next/head";
+// ✅ 1. Import useState in addition to useEffect
 import { useEffect, useState } from "react";
 import { useAclStore } from "@/stores/acl.store";
 import { useSession } from "next-auth/react";
@@ -18,11 +19,19 @@ import { Header } from "@/components/atomic/Header";
 
 export default function AclPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // ✅ 2. Create a state to track if the component is mounted on the client
+  const [isClient, setIsClient] = useState(false);
+
   const session = useSession();
   const { acls, setAcl } = useAclStore();
   const { currentProjectId } = useProjectsStore();
+
+  // ✅ 3. Use useEffect to set the state to true. This hook only runs on the client.
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     async function fetchAcls() {
@@ -41,8 +50,6 @@ export default function AclPage() {
 
         if (response.ok) {
           const result = await response.json();
-          console.log(result);
-
           setAcl(result.message.lists);
         }
       }
@@ -86,44 +93,49 @@ export default function AclPage() {
           </div>
         </div>
       </div>
-      {createPortal(
-        <Modal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          header={<h2 className="text-lg m-1 font-medium  ">Criar nova ACL</h2>}
-          footer={
-            <>
-              <Button
-                onClick={() => setIsModalOpen(false)}
-                variant="ghost"
-                className="flex self-start text-md "
-                type="button"
-              >
-                Fechar
-              </Button>
-              <Button
-                variant="primary"
-                className="inline-flex text-md col-start-4 col-span-2"
-                type="submit"
-              >
-                Salvar
-              </Button>
-            </>
-          }
-        >
-          <div className="flex flex-col gap-5">
-            <span className="flex-col gap-1">
-              <p>Nome</p>
-              <Input />
-            </span>
-            <span className="flex-col gap-1">
-              <p>Descrição</p>
-              <Input className="h-30" />
-            </span>
-          </div>
-        </Modal>,
-        document.body
-      )}
+
+      {/* ✅ 4. Conditionally render the portal only when isClient is true */}
+      {isClient &&
+        createPortal(
+          <Modal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            header={
+              <h2 className="text-lg m-1 font-medium  ">Criar nova ACL</h2>
+            }
+            footer={
+              <>
+                <Button
+                  onClick={() => setIsModalOpen(false)}
+                  variant="ghost"
+                  className="flex self-start text-md "
+                  type="button"
+                >
+                  Fechar
+                </Button>
+                <Button
+                  variant="primary"
+                  className="inline-flex text-md col-start-4 col-span-2"
+                  type="submit"
+                >
+                  Salvar
+                </Button>
+              </>
+            }
+          >
+            <div className="flex flex-col gap-5">
+              <span className="flex-col gap-1">
+                <p>Nome</p>
+                <Input />
+              </span>
+              <span className="flex-col gap-1">
+                <p>Descrição</p>
+                <Input className="h-30" />
+              </span>
+            </div>
+          </Modal>,
+          document.body
+        )}
     </div>
   );
 }
