@@ -5,18 +5,20 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { VirtualMachineEntry } from "./VirtualMachineEntry";
 import { useVMStore } from "@/stores/vm-store";
+import { useProjectsStore } from "@/stores/user-project.store";
 
 export function VirtualMachinesTable() {
   const [loading, setLoading] = useState(false);
   const { machines, setMachines } = useVMStore();
   const { data: session, status } = useSession();
+  const { currentProjectId } = useProjectsStore();
 
   useEffect(() => {
     async function fetchMachines() {
       setLoading(true);
       if (session?.access_token) {
         const response = await fetch(
-          "/api/03f1213a-2621-4558-9349-d0767154ac83/machines/list-machines",
+          `/api/${currentProjectId}/machines/list-machines`,
           {
             headers: {
               "Content-Type": "application/json",
