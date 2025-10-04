@@ -5,11 +5,10 @@ import { Button } from "@/components/atomic/Button";
 import { PageHeader2 } from "@/components/atomic/PageHeader2";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import AddIcon from "@mui/icons-material/Add";
-import { Modal } from "@/components/atomic/Modal";
-import { Input } from "@/components/atomic/Input";
+
+import { NewAclForm } from "@/components/forms/new-acl-form";
 
 import Head from "next/head";
-// ✅ 1. Import useState in addition to useEffect
 import { useEffect, useState } from "react";
 import { useAclStore } from "@/stores/acl.store";
 import { useSession } from "next-auth/react";
@@ -21,14 +20,12 @@ export default function AclPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // ✅ 2. Create a state to track if the component is mounted on the client
   const [isClient, setIsClient] = useState(false);
 
   const session = useSession();
   const { acls, setAcl } = useAclStore();
   const { currentProjectId } = useProjectsStore();
 
-  // ✅ 3. Use useEffect to set the state to true. This hook only runs on the client.
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -94,46 +91,12 @@ export default function AclPage() {
         </div>
       </div>
 
-      {/* ✅ 4. Conditionally render the portal only when isClient is true */}
       {isClient &&
         createPortal(
-          <Modal
+          <NewAclForm
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
-            header={
-              <h2 className="text-lg m-1 font-medium  ">Criar nova ACL</h2>
-            }
-            footer={
-              <>
-                <Button
-                  onClick={() => setIsModalOpen(false)}
-                  variant="ghost"
-                  className="flex self-start text-md "
-                  type="button"
-                >
-                  Fechar
-                </Button>
-                <Button
-                  variant="primary"
-                  className="inline-flex text-md col-start-4 col-span-2"
-                  type="submit"
-                >
-                  Salvar
-                </Button>
-              </>
-            }
-          >
-            <div className="flex flex-col gap-5">
-              <span className="flex-col gap-1">
-                <p>Nome</p>
-                <Input />
-              </span>
-              <span className="flex-col gap-1">
-                <p>Descrição</p>
-                <Input className="h-30" />
-              </span>
-            </div>
-          </Modal>,
+          />,
           document.body
         )}
     </div>
