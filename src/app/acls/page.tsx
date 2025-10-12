@@ -81,6 +81,7 @@ export default function AclPage() {
           <div className="flex flex-col gap-5">
             {acls.map((acl) => (
               <AclComponent
+                id={acl.id}
                 name={acl.name}
                 description={acl.description}
                 key={acl.id}

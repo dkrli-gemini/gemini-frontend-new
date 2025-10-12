@@ -19,7 +19,6 @@ export function NewAclForm({ isOpen, onClose }: NewAclFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const { showNotification } = useNotificationStore();
   const { currentProjectId } = useProjectsStore();
   const session = useSession();
   const { showAlert } = useAlertStore();
