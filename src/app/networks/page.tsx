@@ -76,7 +76,7 @@ export default function NetworksPage() {
             projectId: projectId,
             gateway: networkGateway,
             netmask: networkNetmask,
-            offerId: "04dd3cea-4346-4ca3-8d1b-cdb73f28ec6d",
+            offerId: "b8bbc7e6-c1ec-4e1d-a006-d38553fc60ca",
             aclId: aclId,
           }),
         });

@@ -11,6 +11,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { SelectableDropdown } from "../atomic/SelectableDropdown";
+import { usePublicIpStore } from "@/stores/public-ip-store";
+import { useVMStore } from "@/stores/vm-store";
 
 interface NewAclForwardRuleForm {
   isOpen: boolean;
@@ -18,13 +20,22 @@ interface NewAclForwardRuleForm {
 }
 
 export function NewForwardRuleForm({ isOpen, onClose }: NewAclForwardRuleForm) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+  const [privatePortStart, setPrivatePortStart] = useState("");
+  const [privatePortEnd, setPrivatePortEnd] = useState("");
+  const [publicPortStart, setPublicPortStart] = useState("");
+  const [publicPortEnd, setPublicPortEnd] = useState("");
+  const [protocol, setProtocol] = useState("");
+  const [ip, setIp] = useState("");
+  const [virtualMachine, setVirtualMachine] = useState("");
+  const [cidr, setCidr] = useState("");
+
   const [loading, setLoading] = useState(false);
   const { currentProjectId } = useProjectsStore();
   const session = useSession();
   const { showAlert } = useAlertStore();
   const router = useRouter();
+  const { ips, setIps } = usePublicIpStore();
+  const { machines } = useVMStore();
 
   const handleSubmit = async (event: FormEvent) => {
     // event.preventDefault();
@@ -87,29 +98,41 @@ export function NewForwardRuleForm({ isOpen, onClose }: NewAclForwardRuleForm) {
     >
       <form id="new-acl-form" onSubmit={handleSubmit}>
         <div className="flex flex-col">
-          <h2 className=" font-semibold mb-2">Porta Privada</h2>
+          <p className=" font-semibold mb-2">Porta Privada</p>
           <div className="flex gap-5">
             <span className="flex-col space-y-1">
               <p>Início</p>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                value={privatePortStart}
+                onChange={(e) => setPrivatePortStart(e.target.value)}
+              />
             </span>
             <span className="flex-col space-y-1">
               <p>Fim</p>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                value={privatePortEnd}
+                onChange={(e) => setPrivatePortEnd(e.target.value)}
+              />
             </span>
           </div>
 
           <span className=" bg-[#E6E6E6] h-px my-4 mb-5"></span>
 
-          <h2 className=" font-semibold mb-2">Porta Pública</h2>
+          <p className=" font-semibold mb-2">Porta Pública</p>
           <div className="flex gap-5">
             <span className="flex-col space-y-1">
               <p>Início</p>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                value={publicPortStart}
+                onChange={(e) => setPublicPortStart(e.target.value)}
+              />
             </span>
             <span className="flex-col space-y-1">
               <p>Fim</p>
-              <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <Input
+                value={publicPortEnd}
+                onChange={(e) => setPublicPortEnd(e.target.value)}
+              />
             </span>
           </div>
 
@@ -125,7 +148,7 @@ export function NewForwardRuleForm({ isOpen, onClose }: NewAclForwardRuleForm) {
                 { id: "TCP", name: "TCP" },
                 { id: "ALL", name: "ALL" },
               ]}
-              onSelect={() => {}}
+              onSelect={(value) => setProtocol(value)}
               placeholder="Selecione..."
             ></SelectableDropdown>
           </span>
@@ -133,28 +156,34 @@ export function NewForwardRuleForm({ isOpen, onClose }: NewAclForwardRuleForm) {
             <span className="flex-col gap-1 space-y-1 flex-1">
               <p>IP</p>
               <SelectableDropdown
-                items={[
-                  { id: "UDP", name: "UDP" },
-                  { id: "TCP", name: "TCP" },
-                  { id: "ALL", name: "ALL" },
-                ]}
-                onSelect={() => {}}
+                items={ips.map((ip) => ({
+                  id: ip.id,
+                  name: ip.address,
+                }))}
+                onSelect={(value) => setIp(value)}
                 placeholder="Selecione..."
               ></SelectableDropdown>
             </span>
             <span className="flex-col gap-1 space-y-1 flex-1">
               <p>Máquina Virtual</p>
               <SelectableDropdown
-                items={[
-                  { id: "UDP", name: "UDP" },
-                  { id: "TCP", name: "TCP" },
-                  { id: "ALL", name: "ALL" },
-                ]}
-                onSelect={() => {}}
+                items={machines.map((m) => ({
+                  id: m.id,
+                  name: m.name,
+                }))}
+                onSelect={(value) => setVirtualMachine(value)}
                 placeholder="Selecione..."
               ></SelectableDropdown>
             </span>
           </div>
+          <span className="flex-col gap-1 space-y-1 flex-1 mt-5">
+            <p>CIDR</p>
+            <Input
+              value={cidr}
+              onChange={(e) => setCidr(e.target.value)}
+              placeholder=""  
+            />
+          </span>
         </div>
       </form>
     </Modal>
