@@ -6,6 +6,8 @@ export interface Network {
   name: string;
   gateway: string;
   netmask: string;
+  aclId: string;
+  aclName: string;
 }
 
 export interface NetworkState {

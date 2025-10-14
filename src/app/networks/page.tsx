@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/atomic/PageHeader";
 import { PageHeader2 } from "@/components/atomic/PageHeader2";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import { SelectableDropdown } from "@/components/atomic/SelectableDropdown";
+import { StatusBadge } from "@/components/atomic/StatusBadge";
 import { useAclStore } from "@/stores/acl.store";
 import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
@@ -122,7 +123,7 @@ export default function NetworksPage() {
             headers={["Nome", "Gateway", "Netmask", "ACL"]}
             rows={networks.map((net) => ({
               id: net.id,
-              data: [net.name, net.gateway, net.netmask],
+              data: [net.name, net.gateway, net.netmask, net.aclName],
             }))}
           />
         </div>

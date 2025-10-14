@@ -82,15 +82,6 @@ export default function AclComponent(props: AclComponentProps) {
       }
     }
 
-    console.log({
-      id: props.id,
-      ip,
-      startPort,
-      endPort,
-      action,
-      trafficType,
-      protocol,
-    });
     setIsModalOpen(false);
   };
 
