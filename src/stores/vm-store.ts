@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { safeStorage } from "./persist-storage";
 
 export interface Instance {
   id: string;
@@ -7,6 +8,13 @@ export interface Instance {
   cpu: string;
   memory: string;
   disk: string;
+  profile?: string;
+  sku?: string;
+  family?: string;
+  diskTier?: string;
+  cpuNumber?: number;
+  memoryInMb?: number;
+  rootDiskSizeInGb?: number;
 }
 
 export interface Template {
@@ -44,6 +52,7 @@ export const useVMStore = create<VMState>()(
     }),
     {
       name: "vm-storage",
+      storage: safeStorage,
     }
   )
 );

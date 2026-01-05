@@ -4,11 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   const body = await req.json();
-  const { domainId } = body;
+  const { projectId } = body;
+
+  if (!projectId) {
+    return NextResponse.json(
+      { error: "projectId is required" },
+      { status: 400 }
+    );
+  }
 
   try {
     const response = await axios.get(
-      `${process.env.API_URL!}/vpcs/list-acl/${domainId}`,
+      `${process.env.API_URL!}/vpcs/list-acl/${projectId}`,
       {
         headers: {
           Authorization: authHeader,

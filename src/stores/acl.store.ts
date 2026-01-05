@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { safeStorage } from "./persist-storage";
 
 export interface AclRule {
   id: string;
@@ -31,6 +32,7 @@ export const useAclStore = create<AclState>()(
     }),
     {
       name: "acl-storage",
+      storage: safeStorage,
     }
   )
 );

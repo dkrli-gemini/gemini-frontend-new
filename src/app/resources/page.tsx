@@ -1,61 +1,40 @@
 "use client";
 
-import { Button } from "@/components/atomic/Button";
-import DataTable from "@/components/atomic/DataTable";
 import { Header } from "@/components/atomic/Header";
-import { PageHeader } from "@/components/atomic/PageHeader";
 import { PageHeader2 } from "@/components/atomic/PageHeader2";
-import { SearchInput } from "@/components/atomic/SearchInput";
-import { TabElement } from "@/components/atomic/TabElement";
+import Resource from "@/components/atomic/Resource";
 import { ResourceTypeEnum, useLimitStore } from "@/stores/limit.store";
 import { useProjectsStore } from "@/stores/user-project.store";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export function formatLimitString(
-  type: ResourceTypeEnum,
-  used: number,
-  limit: number
-): any[] {
-  const typeMap: Record<ResourceTypeEnum, string> = {
-    [ResourceTypeEnum.NETWORK]: "Redes",
-    [ResourceTypeEnum.VOLUMES]: "Discos",
-    [ResourceTypeEnum.INSTANCES]: "Máquinas Virtuais",
-    [ResourceTypeEnum.CPU]: "CPU",
-    [ResourceTypeEnum.MEMORY]: "Memória",
-    [ResourceTypeEnum.PUBLICIP]: "IP's Públicos",
-    [ResourceTypeEnum.CPUCORES]: "Núcleos de CPU",
-  };
-
-  const unitMap: Record<ResourceTypeEnum, string> = {
-    [ResourceTypeEnum.NETWORK]: "",
-    [ResourceTypeEnum.VOLUMES]: "",
-    [ResourceTypeEnum.INSTANCES]: "",
-    [ResourceTypeEnum.CPU]: "MHz",
-    [ResourceTypeEnum.MEMORY]: "GB",
-    [ResourceTypeEnum.PUBLICIP]: "",
-    [ResourceTypeEnum.CPUCORES]: "",
-  };
-
-  const usedString = `${used} ${unitMap[type]}`;
-  const limitString = `${used} ${unitMap[type]}`;
-
-  return [typeMap[type], usedString, limitString];
-}
+const typeLabels: Record<ResourceTypeEnum, string> = {
+  [ResourceTypeEnum.NETWORK]: "Redes",
+  [ResourceTypeEnum.VOLUMES]: "Discos",
+  [ResourceTypeEnum.INSTANCES]: "Máquinas Virtuais",
+  [ResourceTypeEnum.CPU]: "vCPU",
+  [ResourceTypeEnum.MEMORY]: "Memória",
+  [ResourceTypeEnum.PUBLICIP]: "IP's Públicos",
+  [ResourceTypeEnum.CPUCORES]: "vCPU",
+};
 
 export default function ResourcesPage() {
-  const [tabSelected, setTabSelected] = useState("limits");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const session = useSession();
   const { limits, setLimits } = useLimitStore();
-
   const projectStore = useProjectsStore();
 
   useEffect(() => {
     async function fetchResourceLimits() {
+      if (!session.data?.access_token || !projectStore.currentProjectId) {
+        setLimits([]);
+        return;
+      }
+
       setLoading(true);
-      console.log(projectStore.currentProjectId);
-      if (session.data?.access_token) {
+      setError(null);
+      try {
         const response = await fetch(`/api/resource-limits`, {
           method: "POST",
           headers: {
@@ -67,18 +46,50 @@ export default function ResourcesPage() {
           }),
         });
 
-        if (response.ok) {
-          const result = await response.json();
-          setLimits(result.message.resources);
-          console.log(result);
+        if (!response.ok) {
+          throw new Error("Falha ao buscar limites de recursos");
         }
-      }
 
-      setLoading(false);
+        const result = await response.json();
+        setLimits(result.message.resources ?? []);
+      } catch (err) {
+        console.error(err);
+        setError("Não foi possível carregar os limites de recursos.");
+      } finally {
+        setLoading(false);
+      }
     }
 
     fetchResourceLimits();
-  }, [session, setLimits]);
+  }, [session.data?.access_token, projectStore.currentProjectId, setLimits]);
+
+  const aggregates = useMemo(() => {
+    if (!limits.length) {
+      return { avgUsage: 0, overflow: 0 };
+    }
+
+    let totalPercent = 0;
+    let counted = 0;
+    let overflow = 0;
+
+    limits.forEach((limit) => {
+      if (limit.limit > 0) {
+        const pct = Math.min(100, (limit.used / limit.limit) * 100);
+        totalPercent += pct;
+        counted += 1;
+        if (limit.used > limit.limit) {
+          overflow += 1;
+        }
+      }
+    });
+
+    return {
+      avgUsage: counted ? Math.round(totalPercent / counted) : 0,
+      overflow,
+    };
+  }, [limits]);
+
+  const hasProject = Boolean(projectStore.currentProjectId);
 
   return (
     <div className="flex flex-col h-full">
@@ -87,38 +98,36 @@ export default function ResourcesPage() {
       <PageHeader2
         title="Recursos Utilizados"
         el1name="Uso médio de recursos"
-        el1value={"0%"}
+        el1value={`${aggregates.avgUsage}%`}
         el2name="Recursos em overflow"
-        el2value={"0"}
+        el2value={aggregates.overflow.toString()}
       />
 
-      <div className="flex flex-col -translate-y-10 px-21">
-        <ul
-          role="tablist"
-          className="mt-10 flex gap-9 border-b flex flex-row justify-center font-medium"
-        >
-          <TabElement
-            name="Recursos"
-            selected={tabSelected == "limits"}
-            setSelected={() => setTabSelected("limits")}
-          />
-          <TabElement
-            name="Performance"
-            selected={tabSelected == "resources"}
-            setSelected={() => setTabSelected("resources")}
-          />
-        </ul>
-        <div className="flex justify-start mt-4 mb-3    ">
-          <SearchInput />
-        </div>
-        {tabSelected == "limits" && (
-          <DataTable
-            headers={["Recurso", "Uso atual", "Limite"]}
-            rows={limits.map((l) => ({
-              id: l.id,
-              data: formatLimitString(l.type, l.used, l.limit),
-            }))}
-          />
+      <div className="flex flex-col -translate-y-10 px-20 pb-8 gap-6">
+        {!hasProject && (
+          <p className="text-sm text-gray-500">
+            Selecione um projeto em "Home" para visualizar os limites de
+            recurso.
+          </p>
+        )}
+
+        {loading && (
+          <p className="text-sm text-gray-500">Carregando limites...</p>
+        )}
+        {error && !loading && <p className="text-sm text-red-500">{error}</p>}
+
+        {!loading && !error && hasProject && (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {limits.map((limit) => (
+              <Resource
+                key={limit.id}
+                label={typeLabels[limit.type] ?? limit.type}
+                type={limit.type}
+                used={limit.used}
+                limit={limit.limit}
+              />
+            ))}
+          </div>
         )}
       </div>
     </div>

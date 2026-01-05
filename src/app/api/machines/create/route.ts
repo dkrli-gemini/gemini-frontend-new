@@ -11,10 +11,10 @@ export async function POST(req: NextRequest) {
     const response = await axios.post(
       `${process.env.API_URL!}/projects/add-virtual-machine/${projectId}`,
       {
-        name: name,
-        instanceId: offerId,
-        templateId: templateId,
-        networkId: networkId,
+        name,
+        offerId,
+        templateId,
+        networkId,
       },
       {
         headers: {

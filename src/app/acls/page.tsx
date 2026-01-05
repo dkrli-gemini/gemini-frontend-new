@@ -33,7 +33,7 @@ export default function AclPage() {
   useEffect(() => {
     async function fetchAcls() {
       setLoading(true);
-      if (session.data?.access_token) {
+      if (session.data?.access_token && currentProjectId) {
         const response = await fetch(`/api/acl`, {
           method: "POST",
           headers: {
@@ -41,7 +41,7 @@ export default function AclPage() {
             Authorization: `Bearer ${session.data.access_token}`,
           },
           body: JSON.stringify({
-            domainId: currentProjectId,
+            projectId: currentProjectId,
           }),
         });
 
@@ -53,7 +53,9 @@ export default function AclPage() {
       setLoading(false);
     }
 
-    fetchAcls();
+    if (currentProjectId) {
+      fetchAcls();
+    }
   }, [session, setAcl, currentProjectId]);
 
   return (

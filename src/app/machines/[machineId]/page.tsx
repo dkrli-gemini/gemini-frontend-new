@@ -38,6 +38,7 @@ export default function MachineInfoPage() {
 
   const [volumeName, setVolumeName] = useState<string | null>(null);
   const [offerId, setOfferId] = useState<string | null>(null);
+  const [volumeSize, setVolumeSize] = useState<string>("");
 
   useEffect(() => {
     async function fetchVolumes() {
@@ -75,7 +76,7 @@ export default function MachineInfoPage() {
     e.preventDefault();
     const token = session.data?.access_token;
 
-    if (volumeName && offerId) {
+    if (volumeName && offerId && volumeSize) {
       try {
         const response = await fetch("/api/machines/create-volume", {
           method: "POST",
@@ -87,6 +88,7 @@ export default function MachineInfoPage() {
             machineId: machineId,
             volumeName,
             offerId,
+            sizeInGb: Number(volumeSize),
           }),
         });
 
@@ -101,6 +103,9 @@ export default function MachineInfoPage() {
     }
 
     setVolumeModalOpen(false);
+    setVolumeName(null);
+    setOfferId(null);
+    setVolumeSize("");
   };
 
   const handleConsole = async () => {
@@ -285,16 +290,26 @@ export default function MachineInfoPage() {
                 />
               </span>
               <span>
-                <p>Tamanho</p>
+                <p>Oferta de disco</p>
                 <SelectableDropdown
                   items={[
                     {
                       id: "5f627ada-7d13-467b-b215-2065c78ade76",
-                      name: "5GB",
+                      name: "Padrão",
                     },
                   ]}
                   onSelect={(item) => setOfferId(item)}
                   placeholder="Selecione..."
+                />
+              </span>
+              <span>
+                <p>Tamanho (GB)</p>
+                <Input
+                  className="mt-1"
+                  type="number"
+                  min="1"
+                  value={volumeSize}
+                  onChange={(e) => setVolumeSize(e.target.value)}
                 />
               </span>
             </div>

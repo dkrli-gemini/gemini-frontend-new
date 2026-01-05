@@ -9,14 +9,15 @@ import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import DataUsageIcon from "@mui/icons-material/DataUsage";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import WindowOutlinedIcon from "@mui/icons-material/WindowOutlined";
 import Link from "next/link";
 
 export const Sidebar = () => {
   const [isSidebarHovered, setSidebarHovered] = useState(false);
-  const [selected, setSelected] = useState("dashboard");
-  const [hoveredItem, setHoveredItem] = useState(null);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const pathname = usePathname();
 
   const handleSidebarMouseEnter = () => {
     setSidebarHovered(true);
@@ -39,7 +40,31 @@ export const Sidebar = () => {
     }
   };
 
+  const isItemActive = (item: string) => {
+    if (!pathname) {
+      return false;
+    }
+
+    switch (item) {
+      case "vms":
+        return pathname.startsWith("/machines");
+      case "networks":
+        return pathname.startsWith("/networks");
+      case "tasks":
+        return pathname.startsWith("/acls");
+      case "routes":
+        return pathname.startsWith("/forwarding");
+      case "billing":
+        return pathname.startsWith("/billing");
+      case "usage":
+        return pathname.startsWith("/resources");
+      default:
+        return false;
+    }
+  };
+
   const getItemClassName = (item: any) => {
+    const isActive = isItemActive(item);
     return cn(
       "p-3 rounded-xl flex items-center h-12 cursor-pointer",
       !isSidebarHovered && "justify-center",
@@ -47,7 +72,7 @@ export const Sidebar = () => {
         ? hoveredItem === item
           ? "bg-[#F0F0F0]"
           : "bg-white"
-        : selected === item
+        : isActive
         ? "bg-[#F0F0F0]"
         : "bg-white"
     );
@@ -72,23 +97,9 @@ export const Sidebar = () => {
           </div>
         </Link>
       </span>
-      <span className="flex flex-col px-1 gap-2 items mr-2">
-        <Link href="/dashboard">
-          <span
-            onClick={() => setSelected("dashboard")}
-            onMouseEnter={() => handleItemMouseEnter("dashboard")}
-            onMouseLeave={handleItemMouseLeave}
-            className={getItemClassName("dashboard")}
-          >
-            <WindowOutlinedIcon />
-            {isSidebarHovered && (
-              <span className="ml-2 whitespace-nowrap">Dashboard</span>
-            )}
-          </span>
-        </Link>
+      <span className="flex flex-col px-1 gap-2 items mr-2 flex-1">
         <Link href="machines">
           <span
-            onClick={() => setSelected("vms")}
             onMouseEnter={() => handleItemMouseEnter("vms")}
             onMouseLeave={handleItemMouseLeave}
             className={getItemClassName("vms")}
@@ -101,7 +112,6 @@ export const Sidebar = () => {
         </Link>
         <Link href="/networks">
           <span
-            onClick={() => setSelected("networks")}
             onMouseEnter={() => handleItemMouseEnter("networks")}
             onMouseLeave={handleItemMouseLeave}
             className={getItemClassName("networks")}
@@ -115,7 +125,6 @@ export const Sidebar = () => {
 
         <Link href="/acls">
           <span
-            onClick={() => setSelected("tasks")}
             onMouseEnter={() => handleItemMouseEnter("tasks")}
             onMouseLeave={handleItemMouseLeave}
             className={getItemClassName("tasks")}
@@ -128,7 +137,6 @@ export const Sidebar = () => {
         </Link>
         <Link href="/forwarding">
           <span
-            onClick={() => setSelected("routes")}
             onMouseEnter={() => handleItemMouseEnter("routes")}
             onMouseLeave={handleItemMouseLeave}
             className={getItemClassName("routes")}
@@ -139,23 +147,20 @@ export const Sidebar = () => {
             )}
           </span>
         </Link>
-      </span>
-      <span className="flex flex-col justify-end px-1 mr-2  mb-2 gap-2">
-        {/* <span
-          onClick={() => setSelected("billing")}
-          onMouseEnter={() => handleItemMouseEnter("billing")}
-          onMouseLeave={handleItemMouseLeave}
-          className={getItemClassName("billing")}
-        >
-          <ReceiptLongIcon />
-          {isSidebarHovered && (
-            <span className="ml-2 whitespace-nowrap">Billing</span>
-          )}
-        </span> */}
-        <Link href="/resources">
-          {" "}
+        <Link href="/billing">
           <span
-            onClick={() => setSelected("usage")}
+            onMouseEnter={() => handleItemMouseEnter("billing")}
+            onMouseLeave={handleItemMouseLeave}
+            className={getItemClassName("billing")}
+          >
+            <ReceiptLongIcon />
+            {isSidebarHovered && (
+              <span className="ml-2 whitespace-nowrap">Fatura</span>
+            )}
+          </span>
+        </Link>
+        <Link href="/resources">
+          <span
             onMouseEnter={() => handleItemMouseEnter("usage")}
             onMouseLeave={handleItemMouseLeave}
             className={getItemClassName("usage")}

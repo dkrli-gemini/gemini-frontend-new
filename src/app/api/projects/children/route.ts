@@ -2,25 +2,13 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get("authorization") || "";
+  const authHeader = req.headers.get("authorization");
   const body = await req.json();
-
-  const { name, description, projectId } = body;
-
-  if (!projectId) {
-    return NextResponse.json(
-      { error: "projectId is required" },
-      { status: 400 }
-    );
-  }
+  const { domainId } = body;
 
   try {
-    const response = await axios.post(
-      `${process.env.API_URL!}/vpcs/add-acl-list/${projectId}`,
-      {
-        name: name,
-        description: description,
-      },
+    const response = await axios.get(
+      `${process.env.API_URL!}/domain/list-children/${domainId}`,
       {
         headers: {
           Authorization: authHeader,
@@ -32,7 +20,7 @@ export async function POST(req: NextRequest) {
       status: response.status,
     });
   } catch (err: any) {
-    console.error("Error creating ACL List:", err);
+    console.error("Error fetching projects:", err);
     const status = err.response?.status || 500;
     const data = err.response?.data || { error: "Internal Server Error" };
     return NextResponse.json(data, { status });

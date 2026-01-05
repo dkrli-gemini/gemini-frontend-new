@@ -29,6 +29,12 @@ export function NewAclForm({ isOpen, onClose }: NewAclFormProps) {
     setLoading(true);
     const token = session.data?.access_token;
 
+    if (!currentProjectId) {
+      showAlert("Selecione um projeto antes de criar uma ACL.", "error");
+      setLoading(false);
+      return;
+    }
+
     if (name) {
       try {
         const response = await fetch("/api/acl/create", {
@@ -55,6 +61,8 @@ export function NewAclForm({ isOpen, onClose }: NewAclFormProps) {
       } catch (error) {
         console.error("Error creating machine:", error);
       }
+    } else {
+      setLoading(false);
     }
   };
 

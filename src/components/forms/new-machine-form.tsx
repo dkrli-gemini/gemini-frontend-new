@@ -7,12 +7,22 @@ import SelectableDataTable, {
   DataTableRow,
 } from "@/components/atomic/SelectableDataTable";
 import { useSession } from "next-auth/react";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
 import { Modal } from "../atomic/Modal";
 import { useProjectsStore } from "@/stores/user-project.store";
+import {
+  InstanceOffer,
+  useInstanceOfferStore,
+} from "@/stores/instance-offer.store";
+import {
+  Template,
+  useTemplateStore,
+} from "@/stores/template.store";
+
+const DEFAULT_PROFILE_LABEL = "Outros";
 
 export function NewMachineForm() {
   const session = useSession();
@@ -21,16 +31,25 @@ export function NewMachineForm() {
   const [selectedNetwork, setSelectedNetwork] = useState<DataTableRow | null>(
     null
   );
-  const [selectedOs, setSelectedOs] = useState<DataTableRow | null>(null);
-  const [selectedOffer, setSelectedOffer] = useState<DataTableRow | null>(null);
+  const [selectedOs, setSelectedOs] = useState<Template | null>(null);
+  const [selectedOffer, setSelectedOffer] = useState<InstanceOffer | null>(
+    null
+  );
   const [loadingNetworks, setLoadingNetworks] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { networks, setNetworks } = useNetworkStore();
+  const { offers, setOffers } = useInstanceOfferStore();
+  const { templates, setTemplates } = useTemplateStore();
+  const [expandedProfile, setExpandedProfile] = useState<string | null>(null);
 
   const { currentProjectId } = useProjectsStore();
 
   const router = useRouter();
   const { showAlert } = useAlertStore();
+
+  const toggleProfile = (profile: string) => {
+    setExpandedProfile((prev) => (prev === profile ? null : profile));
+  };
 
   useEffect(() => {
     async function fetchNetworks() {
@@ -58,6 +77,49 @@ export function NewMachineForm() {
     fetchNetworks();
   }, [session, setNetworks, currentProjectId]);
 
+  useEffect(() => {
+    async function fetchOffersAndTemplates() {
+      if (session.data?.access_token) {
+        const offersResponse = await fetch("/api/machines", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data.access_token}`,
+          },
+        });
+
+        if (offersResponse.ok) {
+          const result = await offersResponse.json();
+          setOffers(result.message.offers);
+        }
+
+        const templateResponse = await fetch("/api/machines?resource=templates", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.data.access_token}`,
+          },
+        });
+
+        if (templateResponse.ok) {
+          const result = await templateResponse.json();
+          setTemplates(result.message.templates);
+        }
+      }
+    }
+
+    fetchOffersAndTemplates();
+  }, [session, setOffers, setTemplates]);
+
+  const offersByProfile = useMemo(() => {
+    return offers.reduce<Record<string, InstanceOffer[]>>((acc, offer) => {
+      const profileKey = offer.profile ?? DEFAULT_PROFILE_LABEL;
+      if (!acc[profileKey]) {
+        acc[profileKey] = [];
+      }
+      acc[profileKey].push(offer);
+      return acc;
+    }, {});
+  }, [offers]);
+
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const token = session.data?.access_token; // Replace with actual token retrieval
@@ -74,9 +136,9 @@ export function NewMachineForm() {
           body: JSON.stringify({
             name: machineName,
             projectId,
-            offerId: "a3490a4c-2213-4636-86f1-c021e7da9bea", // selectedOffer.id,
-            templateId: "49bbcba0-29ae-46b4-a59b-5c10ebd2b888", // selectedOs.id,
-            networkId: selectedNetwork.id, //selectedNetwork.id,
+            offerId: selectedOffer.id,
+            templateId: selectedOs.id,
+            networkId: selectedNetwork.id,
           }),
         });
 
@@ -146,27 +208,173 @@ export function NewMachineForm() {
         <h2 className="text-3xl font-bold">Sistemas Operacionais</h2>
         <SearchInput />
       </div>
-      <SelectableDataTable
-        name="os"
-        headers={["Nome", "Tamanho"]}
-        rows={[{ id: "asdasd", data: ["Ubuntu", "1 GB"] }]}
-        onRowSelected={setSelectedOs}
-      />
-      <div className="flex justify-between items-end mt-16 mb-2">
-        <h2 className="text-3xl font-bold">Offers</h2>
-        <SearchInput />
+      {templates.length === 0 ? (
+        <p className="text-sm text-gray-600">
+          Nenhum template disponível. Verifique com um administrador.
+        </p>
+      ) : (
+        <SelectableDataTable
+          name="os"
+          headers={["Nome", "Descrição"]}
+          rows={templates.map((template) => ({
+            id: template.id,
+            data: [template.name, template.url ?? "-"],
+          }))}
+          onRowSelected={(row) => {
+            const template = templates.find((t) => t.id === row.id);
+            if (template) {
+              setSelectedOs(template);
+            }
+          }}
+        />
+      )}
+      <div className="flex flex-col gap-6 mt-16">
+        <div className="flex justify-between items-end">
+          <h2 className="text-3xl font-bold">Ofertas</h2>
+        </div>
+        {Object.keys(offersByProfile).length === 0 && (
+          <p className="text-sm text-gray-600">
+            Nenhuma oferta disponível. Verifique com um administrador.
+          </p>
+        )}
+        {Object.entries(offersByProfile).map(([profile, profileOffers]) => {
+          const selectedProfileKey = selectedOffer
+            ? selectedOffer.profile ?? DEFAULT_PROFILE_LABEL
+            : null;
+          const isSelectedProfile = selectedProfileKey === profile;
+          const isOpen = expandedProfile
+            ? expandedProfile === profile
+            : isSelectedProfile;
+
+          return (
+            <div key={profile} className="flex flex-col gap-2 border rounded-xl">
+              <button
+                type="button"
+                className={`flex items-center justify-between px-4 py-3 text-left ${
+                  isSelectedProfile
+                    ? "bg-[#F0F8FF] border-l-4 border-[#0F3759]"
+                    : "bg-[#FAFAFA]"
+                }`}
+                onClick={() => toggleProfile(profile)}
+              >
+                <span className="font-semibold text-lg text-[#2D2D2D]">
+                  {profile}
+                </span>
+                <span className="text-sm text-[#666]">
+                  {isOpen ? "Recolher" : "Expandir"}
+                </span>
+              </button>
+              {isOpen && (
+                <div className="overflow-hidden border-t border-tools-table-outline">
+                  <table className="w-full text-left">
+                    <thead className="bg-[#FAFAFA]">
+                      <tr>
+                        <th className="w-10"></th>
+                        <th className="p-3 text-sm font-semibold text-gray-600">
+                          Nome
+                        </th>
+                        <th className="p-3 text-sm font-semibold text-gray-600">
+                          vCPU
+                        </th>
+                        <th className="p-3 text-sm font-semibold text-gray-600">
+                          RAM
+                        </th>
+                        <th className="p-3 text-sm font-semibold text-gray-600">
+                          Disco padrão
+                        </th>
+                        <th className="p-3 text-sm font-semibold text-gray-600">
+                          Tier
+                        </th>
+                        <th className="p-3 text-sm font-semibold text-gray-600">
+                          SKU
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {profileOffers.map((offer) => (
+                        <tr
+                          key={offer.id}
+                          className={`border-t transition-colors ${
+                            selectedOffer?.id === offer.id
+                              ? "bg-[#E8F2FF]"
+                              : "bg-white"
+                          }`}
+                        >
+                          <td className="p-3">
+                            <input
+                              type="radio"
+                              name="compute-offer"
+                              className="h-5 w-5 accent-[#0F3759]"
+                              checked={selectedOffer?.id === offer.id}
+                              onChange={() => {
+                                setSelectedOffer(offer);
+                                setExpandedProfile(profile);
+                              }}
+                            />
+                          </td>
+                          <td className="p-3 font-medium text-gray-800">
+                            {offer.name}
+                          </td>
+                          <td className="p-3 text-gray-700">
+                            {offer.cpuNumber} vCPU
+                          </td>
+                          <td className="p-3 text-gray-700">
+                            {Math.round(offer.memoryInMb / 1024)} GB
+                          </td>
+                          <td className="p-3 text-gray-700">
+                            {offer.rootDiskSizeInGb} GB
+                          </td>
+                          <td className="p-3 text-gray-700">
+                            {offer.diskTier ?? "-"}
+                          </td>
+                          <td className="p-3 text-gray-700">
+                            {offer.sku ?? "-"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {selectedOffer && (
+          <div className="border border-[#0F3759] bg-[#E8F2FF] rounded-xl p-4 text-sm text-gray-700 shadow-sm">
+            <p className="font-semibold text-base mb-2 flex items-center gap-2 text-[#0F3759]">
+              Oferta selecionada
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <span className="flex flex-col">
+                <p className="text-xs text-gray-500">Nome</p>
+                <p className="font-medium text-[#0F3759]">
+                  {selectedOffer.name}
+                </p>
+              </span>
+              <span className="flex flex-col">
+                <p className="text-xs text-gray-500">vCPU</p>
+                <p className="font-medium text-[#0F3759]">
+                  {selectedOffer.cpuNumber}
+                </p>
+              </span>
+              <span className="flex flex-col">
+                <p className="text-xs text-gray-500">RAM</p>
+                <p className="font-medium text-[#0F3759]">
+                  {Math.round(selectedOffer.memoryInMb / 1024)} GB
+                </p>
+              </span>
+              <span className="flex flex-col">
+                <p className="text-xs text-gray-500">Disco padrão</p>
+                <p className="font-medium text-[#0F3759]">
+                  {selectedOffer.rootDiskSizeInGb} GB{" "}
+                  {selectedOffer.diskTier ?? ""}
+                </p>
+              </span>
+            </div>
+          </div>
+        )}
       </div>
-      <SelectableDataTable
-        name="offers"
-        headers={["Nome", "CPU", "Memória", "Disco"]}
-        rows={[
-          {
-            id: "asdasd",
-            data: ["Instância Pequena", "1x 0.50 Hz", "400 MB", "200 GB"],
-          },
-        ]}
-        onRowSelected={setSelectedOffer}
-      />
       <div className="mb-14"></div>
       <Modal
         isOpen={isModalOpen}

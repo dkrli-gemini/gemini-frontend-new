@@ -1,5 +1,6 @@
 "use client";
 
+import "@/lib/local-storage-polyfill";
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import { filsonPro } from "@/lib/fonts";
@@ -10,8 +11,8 @@ import { usePathname } from "next/navigation";
 import { ReactNode, useEffect } from "react";
 
 import { GlobalAlert } from "@/components/atomic/global-alert";
-import { Metadata } from "next";
 import Head from "next/head";
+import { SidebarPartner } from "@/components/atomic/SidebarPartner";
 
 interface RootLayoutProps {
   children: ReactNode;
@@ -19,7 +20,13 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   const pathname = usePathname();
-  const isRootPage = pathname === "/home" || pathname === "/auth/signin";
+  const isRootPage =
+    pathname === "/home" ||
+    pathname === "/auth/signin" ||
+    pathname === "/clients";
+  const isPartnerArea = pathname.startsWith("/clients");
+  const clientMatch = pathname.match(/^\/clients\/([^/]+)/);
+  const currentClientId = clientMatch ? clientMatch[1] : null;
   useEffect(() => {
     document.title = "Niblo Cloud";
   }, []);
@@ -31,7 +38,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <JobStoreProvider>
             <GlobalAlert />
             <div className="flex min-h-screen">
-              {!isRootPage && <Sidebar />}
+              {!isRootPage && !isPartnerArea && <Sidebar />}
+              {!isRootPage && isPartnerArea && (
+                <SidebarPartner clientId={currentClientId} />
+              )}
               <Head>
                 <link rel="icon" href="/favicon.ico" />
               </Head>

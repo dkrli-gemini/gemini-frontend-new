@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization") || "";
   const body = await req.json();
 
-  const { volumeName, offerId, machineId } = body;
+  const { volumeName, offerId, machineId, sizeInGb } = body;
 
   console.log(machineId);
   try {
@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
       `${process.env.API_URL!}/machines/add-volume/${machineId}`,
       {
         name: volumeName,
-        offerId: offerId,
+        offerId,
+        sizeInGb,
       },
       {
         headers: { Authorization: authHeader },
