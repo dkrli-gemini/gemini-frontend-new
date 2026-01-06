@@ -26,7 +26,7 @@ export default function ForwardingPage() {
 
   useEffect(() => {
     async function fetchIps() {
-      if (session.data?.access_token) {
+      if (session.data?.access_token && currentProjectId) {
         const response = await fetch("/api/networks/list-public-ips", {
           headers: {
             "Content-Type": "application/json",
@@ -46,7 +46,7 @@ export default function ForwardingPage() {
     }
 
     async function fetchRules() {
-      if (session.data?.access_token) {
+      if (session.data?.access_token && currentProjectId) {
         const response = await fetch("/api/networks/list-forward-rules", {
           headers: {
             "Content-Type": "application/json",
@@ -65,8 +65,10 @@ export default function ForwardingPage() {
       }
     }
 
-    fetchIps();
-    fetchRules();
+    if (currentProjectId) {
+      fetchIps();
+      fetchRules();
+    }
   }, [setIps, setRules, session, currentProjectId]);
 
   useEffect(() => {
