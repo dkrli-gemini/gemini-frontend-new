@@ -13,6 +13,7 @@ import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
 import { Modal } from "../atomic/Modal";
 import { useProjectsStore } from "@/stores/user-project.store";
+import { SelectableDropdown } from "@/components/atomic/SelectableDropdown";
 import {
   InstanceOffer,
   useInstanceOfferStore,
@@ -35,6 +36,7 @@ export function NewMachineForm() {
   const [selectedOffer, setSelectedOffer] = useState<InstanceOffer | null>(
     null
   );
+  const [zoneId, setZoneId] = useState("");
   const [loadingNetworks, setLoadingNetworks] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { networks, setNetworks } = useNetworkStore();
@@ -43,6 +45,16 @@ export function NewMachineForm() {
   const [expandedProfile, setExpandedProfile] = useState<string | null>(null);
 
   const { currentProjectId } = useProjectsStore();
+  const zoneOptions = [
+    {
+      id: process.env.NEXT_PUBLIC_ZONE_VINHEDO_ID ?? "",
+      name: "Vinhedo",
+    },
+    {
+      id: process.env.NEXT_PUBLIC_ZONE_FORTALEZA_ID ?? "",
+      name: "Fortaleza",
+    },
+  ].filter((zone) => zone.id);
 
   const router = useRouter();
   const { showAlert } = useAlertStore();
@@ -125,7 +137,7 @@ export function NewMachineForm() {
     const token = session.data?.access_token; // Replace with actual token retrieval
     const projectId = currentProjectId; // Replace with actual project ID
 
-    if (selectedNetwork && selectedOs && selectedOffer) {
+    if (selectedNetwork && selectedOs && selectedOffer && zoneId) {
       try {
         const response = await fetch("/api/machines/create", {
           method: "POST",
@@ -139,6 +151,7 @@ export function NewMachineForm() {
             offerId: selectedOffer.id,
             templateId: selectedOs.id,
             networkId: selectedNetwork.id,
+            zoneId,
           }),
         });
 
@@ -182,6 +195,14 @@ export function NewMachineForm() {
               onChange={(e) => setMachinePassword(e.target.value)}
             />
           </span>
+        </div>
+        <div className="flex flex-col">
+          <p className="mb-2 text-lg">Zona</p>
+          <SelectableDropdown
+            items={zoneOptions}
+            placeholder="Selecione a zona..."
+            onSelect={(id: string) => setZoneId(id)}
+          />
         </div>
       </div>
 

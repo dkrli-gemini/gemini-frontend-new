@@ -30,7 +30,18 @@ export default function NetworksPage() {
   const [networkGateway, setNetworkGateway] = useState("");
   const [networkNetmask, setNetworkNetmask] = useState("");
   const [aclId, setAclId] = useState("");
+  const [zoneId, setZoneId] = useState("");
   const { currentProjectId } = useProjectsStore();
+  const zoneOptions = [
+    {
+      id: process.env.NEXT_PUBLIC_ZONE_VINHEDO_ID ?? "",
+      name: "Vinhedo",
+    },
+    {
+      id: process.env.NEXT_PUBLIC_ZONE_FORTALEZA_ID ?? "",
+      name: "Fortaleza",
+    },
+  ].filter((zone) => zone.id);
 
   useEffect(() => {
     async function fetchNetworks() {
@@ -63,7 +74,7 @@ export default function NetworksPage() {
     const token = session.data?.access_token;
     const projectId = currentProjectId;
 
-    if (networkName && networkGateway && networkNetmask && aclId) {
+    if (networkName && networkGateway && networkNetmask && aclId && zoneId) {
       try {
         const response = await fetch(`/api/networks/create`, {
           method: "POST",
@@ -78,6 +89,7 @@ export default function NetworksPage() {
             netmask: networkNetmask,
             offerId: "b8bbc7e6-c1ec-4e1d-a006-d38553fc60ca",
             aclId: aclId,
+            zoneId,
           }),
         });
 
@@ -179,6 +191,14 @@ export default function NetworksPage() {
                 onChange={(e) => setNetworkNetmask(e.target.value)}
                 placeholder="Digite aqui..."
                 className="mt-2"
+              />
+            </div>
+            <div className="flex flex-col ">
+              <p className="mb-2">Zona</p>
+              <SelectableDropdown
+                items={zoneOptions}
+                placeholder="Selecione a zona..."
+                onSelect={(id: string) => setZoneId(id)}
               />
             </div>
             <div className="flex flex-col ">

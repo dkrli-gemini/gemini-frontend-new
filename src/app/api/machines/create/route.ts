@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   const authHeader = req.headers.get("authorization") || "";
   const body = await req.json();
 
-  const { name, projectId, offerId, templateId, networkId } = body;
+  const { name, projectId, offerId, templateId, networkId, zoneId } = body;
 
   try {
     const response = await axios.post(
@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
         offerId,
         templateId,
         networkId,
+        zoneId,
       },
       {
         headers: {
