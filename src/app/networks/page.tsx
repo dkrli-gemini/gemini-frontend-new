@@ -132,10 +132,22 @@ export default function NetworksPage() {
           </div>
 
           <DataTable
-            headers={["Nome", "Gateway", "Netmask", "ACL"]}
+            headers={["Nome", "Gateway", "Netmask", "ACL", "Tipo"]}
             rows={networks.map((net) => ({
               id: net.id,
-              data: [net.name, net.gateway, net.netmask, net.aclName],
+              data: [
+                net.name,
+                net.gateway || "-",
+                net.netmask || "-",
+                net.aclName || "-",
+                net.isL2 ? (
+                  <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
+                    L2
+                  </span>
+                ) : (
+                  "-"
+                ),
+              ],
             }))}
           />
         </div>

@@ -8,6 +8,7 @@ export interface Network {
   netmask: string;
   aclId: string;
   aclName: string;
+  isL2?: boolean;
 }
 
 export interface NetworkState {
