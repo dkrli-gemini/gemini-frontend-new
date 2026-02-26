@@ -63,8 +63,8 @@ export const SidebarPartner = ({ clientId }: SidebarPartnerProps) => {
           ? "bg-[#F0F0F0]"
           : "bg-white"
         : isActive
-        ? "bg-[#F0F0F0]"
-        : "bg-white"
+          ? "bg-[#F0F0F0]"
+          : "bg-white",
     );
   };
 
@@ -77,12 +77,7 @@ export const SidebarPartner = ({ clientId }: SidebarPartnerProps) => {
       icon: <DataUsageIcon />,
       href: `${basePath}/info`,
     },
-    {
-      key: "limits",
-      label: "Limites",
-      icon: <AnalyticsIcon />,
-      href: `${basePath}/limits`,
-    },
+
     {
       key: "billing",
       label: "Fatura",
@@ -95,7 +90,7 @@ export const SidebarPartner = ({ clientId }: SidebarPartnerProps) => {
     <aside
       className={cn(
         "h-screen sticky top-0 p-1 pt-2 border border-[#e6e6e6] flex flex-col grid grid-rows-3 shadow-sm transition-all duration-300",
-        isSidebarHovered ? "w-60" : "w-16"
+        isSidebarHovered ? "w-60" : "w-16",
       )}
       onMouseEnter={handleSidebarMouseEnter}
       onMouseLeave={handleSidebarMouseLeave}

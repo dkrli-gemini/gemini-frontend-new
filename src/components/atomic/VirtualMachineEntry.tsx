@@ -5,6 +5,7 @@ import { StatusBadge } from "./StatusBadge";
 import Switch from "./Switch";
 import { Button } from "./Button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useAlertStore } from "@/stores/alert.store";
 
@@ -16,10 +17,40 @@ export interface VirtualMachineEntryProps {
 }
 
 export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
+  const router = useRouter();
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { data: session } = useSession();
   const { showAlert } = useAlertStore();
+
+  const waitForJob = async (
+    jobId: string,
+    token: string
+  ): Promise<{ status: string; error?: string }> => {
+    const maxAttempts = 30;
+    const delayMs = 2000;
+
+    for (let i = 0; i < maxAttempts; i++) {
+      const response = await fetch(`/api/jobs/status/${jobId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+      const status = result?.message?.status;
+      const error = result?.message?.error;
+
+      if (status === "DONE" || status === "FAILED") {
+        return { status, error };
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+
+    return { status: "TIMEOUT", error: "Timeout aguardando execução do job." };
+  };
 
   const handleMachineState = async (
     machineId: string,
@@ -43,10 +74,42 @@ export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
       });
 
       if (response.ok) {
+        const payload = await response.json();
+        const jobId = payload?.message?.jobId;
+
+        if (!jobId) {
+          showAlert("Ação enviada, mas sem jobId para acompanhar.", "info");
+          window.location.reload();
+          return;
+        }
+
+        const jobResult = await waitForJob(jobId, session.access_token);
+        if (jobResult.status === "FAILED") {
+          showAlert(
+            jobResult.error || "Falha ao executar ação da máquina.",
+            "error"
+          );
+          window.location.reload();
+          return;
+        }
+        if (jobResult.status === "TIMEOUT") {
+          showAlert(jobResult.error || "Timeout ao aguardar o job.", "error");
+          window.location.reload();
+          return;
+        }
+
         window.location.reload();
       } else {
+        const errorPayload = await response.json().catch(() => null);
+        const errorMessage =
+          errorPayload?.message ||
+          errorPayload?.error?.message ||
+          errorPayload?.error ||
+          "Falha ao alterar estado da máquina.";
+        showAlert(errorMessage, "error");
       }
-    } catch (error) {
+    } catch (error: any) {
+      showAlert(error?.message || "Erro ao alterar estado da máquina.", "error");
     } finally {
       setIsLoading(false);
     }
@@ -57,24 +120,7 @@ export const VirtualMachineEntry = (props: VirtualMachineEntryProps) => {
       showAlert("A máquina deve estar ligada para acessar o console.", "info");
       return;
     }
-    if (session?.access_token) {
-      const response = await fetch("/api/machines/fetch-console", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          machineId: props.id,
-        }),
-      });
-      if (response.ok) {
-        const result = await response.json();
-        if (result.message && result.message.consoleUrl) {
-          window.open(result.message.consoleUrl, "_blank");
-        }
-      }
-    }
+    router.push(`/machines/${props.id}/console`);
   };
 
   return (

@@ -5,11 +5,9 @@ import DataTable from "@/components/atomic/DataTable";
 import { Header } from "@/components/atomic/Header";
 import { Input } from "@/components/atomic/Input";
 import { Modal } from "@/components/atomic/Modal";
-import { PageHeader } from "@/components/atomic/PageHeader";
 import { PageHeader2 } from "@/components/atomic/PageHeader2";
 import { SearchInput } from "@/components/atomic/SearchInput";
 import { SelectableDropdown } from "@/components/atomic/SelectableDropdown";
-import { StatusBadge } from "@/components/atomic/StatusBadge";
 import { useAclStore } from "@/stores/acl.store";
 import { useAlertStore } from "@/stores/alert.store";
 import { useNetworkStore } from "@/stores/network.store";
@@ -17,6 +15,81 @@ import { useProjectsStore } from "@/stores/user-project.store";
 import AddIcon from "@mui/icons-material/Add";
 import { useSession } from "next-auth/react";
 import { FormEvent, useEffect, useState } from "react";
+
+const DEFAULT_CIDR = process.env.NEXT_PUBLIC_DEFAULT_CIDR ?? "";
+
+function sanitizeIpv4Input(value: string): string {
+  const clean = value.replace(/[^\d.]/g, "");
+  const rawParts = clean.split(".");
+  const parts: string[] = [];
+
+  for (let i = 0; i < rawParts.length && i < 4; i++) {
+    if (rawParts[i].length === 0) {
+      parts.push("");
+      continue;
+    }
+    parts.push(rawParts[i].slice(0, 3));
+  }
+
+  return parts.join(".");
+}
+
+function isValidIpv4(value: string): boolean {
+  const parts = value.split(".");
+  if (parts.length !== 4) return false;
+
+  return parts.every((part) => {
+    if (!/^\d+$/.test(part)) return false;
+    const n = Number(part);
+    return n >= 0 && n <= 255;
+  });
+}
+
+function ipv4ToInt(value: string): number {
+  const parts = value.split(".").map(Number);
+  return (
+    ((parts[0] << 24) >>> 0) +
+    ((parts[1] << 16) >>> 0) +
+    ((parts[2] << 8) >>> 0) +
+    (parts[3] >>> 0)
+  );
+}
+
+function parseCidr(cidr: string):
+  | { networkInt: number; broadcastInt: number; prefix: number }
+  | null {
+  const [ip, prefixText] = cidr.split("/");
+  const prefix = Number(prefixText);
+  if (!ip || Number.isNaN(prefix) || prefix < 0 || prefix > 32) return null;
+  if (!isValidIpv4(ip)) return null;
+
+  const ipInt = ipv4ToInt(ip);
+  const mask =
+    prefix === 0 ? 0 : ((0xffffffff << (32 - prefix)) >>> 0) & 0xffffffff;
+  const networkInt = ipInt & mask;
+  const broadcastInt = networkInt | (~mask >>> 0);
+
+  return { networkInt, broadcastInt, prefix };
+}
+
+function netmaskToPrefix(netmask: string): number | null {
+  if (!isValidIpv4(netmask)) return null;
+  const value = ipv4ToInt(netmask);
+  let foundZero = false;
+  let prefix = 0;
+
+  for (let i = 31; i >= 0; i--) {
+    const bit = (value >>> i) & 1;
+    if (bit === 1 && foundZero) return null;
+    if (bit === 1) {
+      prefix++;
+    } else {
+      foundZero = true;
+    }
+  }
+
+  return prefix;
+}
 
 export default function NetworksPage() {
   const session = useSession();
@@ -73,6 +146,44 @@ export default function NetworksPage() {
     event.preventDefault();
     const token = session.data?.access_token;
     const projectId = currentProjectId;
+    const cidr = parseCidr(DEFAULT_CIDR);
+
+    if (!isValidIpv4(networkGateway)) {
+      showAlert("Gateway inválido. Use formato IPv4 (ex: 10.128.10.1).", "error");
+      return;
+    }
+
+    if (!isValidIpv4(networkNetmask)) {
+      showAlert("Netmask inválida. Use formato IPv4 (ex: 255.255.255.0).", "error");
+      return;
+    }
+
+    const netmaskPrefix = netmaskToPrefix(networkNetmask);
+    if (netmaskPrefix === null) {
+      showAlert("Netmask inválida. Máscara deve ser contínua.", "error");
+      return;
+    }
+
+    if (cidr) {
+      const gatewayInt = ipv4ToInt(networkGateway);
+      const insideCidr =
+        gatewayInt > cidr.networkInt && gatewayInt < cidr.broadcastInt;
+      if (!insideCidr) {
+        showAlert(
+          `Gateway fora do CIDR padrão (${DEFAULT_CIDR}).`,
+          "error"
+        );
+        return;
+      }
+
+      if (netmaskPrefix < cidr.prefix) {
+        showAlert(
+          `Netmask inválida para o CIDR padrão (${DEFAULT_CIDR}).`,
+          "error"
+        );
+        return;
+      }
+    }
 
     if (networkName && networkGateway && networkNetmask && aclId && zoneId) {
       try {
@@ -87,7 +198,6 @@ export default function NetworksPage() {
             projectId: projectId,
             gateway: networkGateway,
             netmask: networkNetmask,
-            offerId: "b8bbc7e6-c1ec-4e1d-a006-d38553fc60ca",
             aclId: aclId,
             zoneId,
           }),
@@ -191,8 +301,14 @@ export default function NetworksPage() {
               <p>Gateway</p>
               <Input
                 value={networkGateway}
-                onChange={(e) => setNetworkGateway(e.target.value)}
-                placeholder="Digite aqui..."
+                onChange={(e) =>
+                  setNetworkGateway(sanitizeIpv4Input(e.target.value))
+                }
+                placeholder={
+                  DEFAULT_CIDR
+                    ? `IPv4 dentro de ${DEFAULT_CIDR}`
+                    : "Ex: 10.128.10.1"
+                }
                 className="mt-2"
               />
             </div>
@@ -200,18 +316,42 @@ export default function NetworksPage() {
               <p>Netmask</p>
               <Input
                 value={networkNetmask}
-                onChange={(e) => setNetworkNetmask(e.target.value)}
-                placeholder="Digite aqui..."
+                onChange={(e) =>
+                  setNetworkNetmask(sanitizeIpv4Input(e.target.value))
+                }
+                placeholder="Ex: 255.255.255.0"
                 className="mt-2"
               />
             </div>
             <div className="flex flex-col ">
               <p className="mb-2">Zona</p>
-              <SelectableDropdown
-                items={zoneOptions}
-                placeholder="Selecione a zona..."
-                onSelect={(id: string) => setZoneId(id)}
-              />
+              <div className="flex flex-col rounded-xl border border-[#E5E7EB] bg-white">
+                {zoneOptions.map((zone, index) => (
+                  <label
+                    key={zone.id}
+                    className={`flex cursor-pointer items-center justify-between px-3 py-3 text-sm text-[#2E2E2E] ${
+                      index > 0 ? "border-t border-[#E5E7EB]" : ""
+                    }`}
+                  >
+                    <span>{zone.name}</span>
+                    <span className="relative inline-flex h-5 w-5 items-center justify-center rounded-full border border-[#9AA4B2] bg-white">
+                      <input
+                        type="checkbox"
+                        checked={zoneId === zone.id}
+                        onChange={() =>
+                          setZoneId((current) =>
+                            current === zone.id ? "" : zone.id
+                          )
+                        }
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                      {zoneId === zone.id ? (
+                        <span className="h-2.5 w-2.5 rounded-full bg-[#1F4D78]" />
+                      ) : null}
+                    </span>
+                  </label>
+                ))}
+              </div>
             </div>
             <div className="flex flex-col ">
               <p className="mb-2">ACL List</p>

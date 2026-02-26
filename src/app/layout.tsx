@@ -23,6 +23,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   const isRootPage =
     pathname === "/home" ||
     pathname === "/auth/signin" ||
+    pathname === "/register" ||
     pathname === "/clients";
   const isPartnerArea = pathname.startsWith("/clients");
   const clientMatch = pathname.match(/^\/clients\/([^/]+)/);

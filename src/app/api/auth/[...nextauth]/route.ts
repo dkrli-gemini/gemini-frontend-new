@@ -73,6 +73,9 @@ export const authOptions: NextAuthOptions = {
       if (token.exp) {
         session.expires = new Date(token.exp * 1000).toISOString();
       }
+      if (token.error) {
+        (session as any).error = token.error;
+      }
       return session;
     },
     async jwt({ token, account, profile }) {
@@ -94,14 +97,21 @@ export const authOptions: NextAuthOptions = {
         token.realm_access = decoded.realm_access;
       }
 
-      if (Date.now() < (token.exp! * 1000 || 0)) {
+      if (!token.exp || !token.refreshToken) {
+        return token;
+      }
+
+      if (Date.now() < (token.exp * 1000 || 0)) {
         return token;
       }
 
       const refreshedToken = await refreshAccessToken(token);
 
       if (refreshedToken.error) {
-        return null;
+        return {
+          ...token,
+          error: "RefreshAccessTokenError",
+        };
       }
 
       return refreshedToken;

@@ -16,12 +16,13 @@ import { useVolumeStore } from "@/stores/volume.store";
 import { ChevronLeft } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 export default function MachineInfoPage() {
   const { machines } = useVMStore();
+  const router = useRouter();
   const params = useParams();
   const machineId = params.machineId as string;
   const [machine, setMachine] = useState<VirtualMachine | null>(null);
@@ -111,26 +112,9 @@ export default function MachineInfoPage() {
   const handleConsole = async () => {
     if (machine?.state != "RUNNING") {
       showAlert("A máquina deve estar ligada para acessar o console.");
+      return;
     }
-
-    if (session.data?.access_token) {
-      const response = await fetch("/api/machines/fetch-console", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.data.access_token}`,
-        },
-        body: JSON.stringify({
-          machineId: machine?.id,
-        }),
-      });
-      if (response.ok) {
-        const result = await response.json();
-        if (result.message && result.message.consoleUrl) {
-          window.open(result.message.consoleUrl, "_blank");
-        }
-      }
-    }
+    router.push(`/machines/${machine?.id}/console`);
   };
 
   if (!machine) {

@@ -5,6 +5,7 @@ import { safeStorage } from "./persist-storage";
 export interface ChildrenProject {
   domainId: string;
   domainName: string;
+  isDistributor?: boolean;
 }
 
 interface ChildrenProjectState {

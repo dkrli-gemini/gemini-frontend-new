@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
-import { ChangeEvent } from "react";
+import { ChangeEvent, InputHTMLAttributes } from "react";
 
-export interface InputProps {
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
   placeholder?: string;
   value?: string;
@@ -17,11 +17,17 @@ export const Input = (props: InputProps) => {
       )}
     >
       <input
-        type="text"
+        type={props.type ?? "text"}
         className="outline-none ml-3 h-max w-full placeholder-[#999999]"
         placeholder={props.placeholder}
         value={props.value}
         onChange={props.onChange}
+        min={props.min}
+        max={props.max}
+        step={props.step}
+        disabled={props.disabled}
+        name={props.name}
+        autoComplete={props.autoComplete}
       />
     </div>
   );

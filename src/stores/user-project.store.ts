@@ -13,6 +13,7 @@ export interface UserProject {
   project: Project;
   domainName: string;
   domainId: string;
+  isDistributor?: boolean;
   role: string;
 }
 
@@ -21,6 +22,7 @@ export interface UserProjectState {
   currentProjectId: string | null;
   currentDomainId: string | null;
   setCurrentProjectId: (id: string | null) => void;
+  setCurrentDomainId: (id: string | null) => void;
   setProjects: (projects: UserProject[]) => void;
   clearProjects: () => void;
 }
@@ -39,6 +41,11 @@ export const useProjectsStore = create<UserProjectState>()(
         set({
           currentProjectId: id,
           currentDomainId: project?.domainId ?? null,
+        });
+      },
+      setCurrentDomainId: (id: string | null) => {
+        set({
+          currentDomainId: id,
         });
       },
       setProjects: (projects: UserProject[]) => {

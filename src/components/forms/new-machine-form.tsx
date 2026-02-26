@@ -24,6 +24,11 @@ import {
 } from "@/stores/template.store";
 
 const DEFAULT_PROFILE_LABEL = "Outros";
+const formatCurrency = (valueInCents: number) =>
+  (valueInCents / 100).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 
 export function NewMachineForm() {
   const session = useSession();
@@ -43,8 +48,13 @@ export function NewMachineForm() {
   const { offers, setOffers } = useInstanceOfferStore();
   const { templates, setTemplates } = useTemplateStore();
   const [expandedProfile, setExpandedProfile] = useState<string | null>(null);
+  const [pricingMap, setPricingMap] = useState<Record<string, number>>({});
+  const [effectiveBillingType, setEffectiveBillingType] = useState<
+    "POOL" | "PAYG"
+  >("POOL");
+  const [pricingLoading, setPricingLoading] = useState(false);
 
-  const { currentProjectId } = useProjectsStore();
+  const { currentProjectId, currentDomainId } = useProjectsStore();
   const zoneOptions = [
     {
       id: process.env.NEXT_PUBLIC_ZONE_VINHEDO_ID ?? "",
@@ -121,6 +131,65 @@ export function NewMachineForm() {
     fetchOffersAndTemplates();
   }, [session, setOffers, setTemplates]);
 
+  useEffect(() => {
+    async function fetchPricingContext() {
+      if (!session.data?.access_token || !currentDomainId) {
+        setPricingMap({});
+        setEffectiveBillingType("POOL");
+        return;
+      }
+
+      setPricingLoading(true);
+      try {
+        const response = await fetch(
+          `/api/billing/pricing?domainId=${currentDomainId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${session.data.access_token}`,
+            },
+          }
+        );
+
+        if (!response.ok) {
+          setPricingMap({});
+          return;
+        }
+
+        const result = await response.json();
+        const effectivePrices = Array.isArray(result?.message?.effectivePrices)
+          ? result.message.effectivePrices
+          : [];
+
+        const nextMap: Record<string, number> = {};
+        effectivePrices.forEach(
+          (item: { resourceType?: string; unitPriceInCents?: number }) => {
+            if (
+              item?.resourceType &&
+              Number.isFinite(item?.unitPriceInCents) &&
+              (item?.unitPriceInCents ?? 0) >= 0
+            ) {
+              nextMap[item.resourceType] = Math.round(item.unitPriceInCents ?? 0);
+            }
+          }
+        );
+
+        setPricingMap(nextMap);
+        setEffectiveBillingType(
+          result?.message?.policy?.effectiveBillingType === "PAYG"
+            ? "PAYG"
+            : "POOL"
+        );
+      } catch (error) {
+        console.error("Erro ao buscar precificação PAYG", error);
+        setPricingMap({});
+      } finally {
+        setPricingLoading(false);
+      }
+    }
+
+    fetchPricingContext();
+  }, [session.data?.access_token, currentDomainId]);
+
   const offersByProfile = useMemo(() => {
     return offers.reduce<Record<string, InstanceOffer[]>>((acc, offer) => {
       const profileKey = offer.profile ?? DEFAULT_PROFILE_LABEL;
@@ -131,6 +200,30 @@ export function NewMachineForm() {
       return acc;
     }, {});
   }, [offers]);
+
+  const creationCost = useMemo(() => {
+    if (!selectedOffer) {
+      return {
+        total: 0,
+        instance: 0,
+        cpu: 0,
+        memory: 0,
+        volumes: 0,
+      };
+    }
+
+    const instance = (pricingMap.INSTANCES ?? 0) * 1;
+    const cpu = (pricingMap.CPU ?? 0) * selectedOffer.cpuNumber;
+    const memory = (pricingMap.MEMORY ?? 0) * selectedOffer.memoryInMb;
+    const volumes = (pricingMap.VOLUMES ?? 0) * selectedOffer.rootDiskSizeInGb;
+    return {
+      total: instance + cpu + memory + volumes,
+      instance,
+      cpu,
+      memory,
+      volumes,
+    };
+  }, [pricingMap, selectedOffer]);
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -393,6 +486,31 @@ export function NewMachineForm() {
                 </p>
               </span>
             </div>
+          </div>
+        )}
+        {selectedOffer && effectiveBillingType === "PAYG" && (
+          <div className="border border-[#1F4D78] bg-[#F5FAFF] rounded-xl p-4 text-sm text-[#1F4D78]">
+            <p className="font-semibold text-base">
+              Custo PAYG na criação desta máquina
+            </p>
+            <div className="mt-3 grid grid-cols-1 gap-1 text-sm">
+              <p>Instância: {formatCurrency(creationCost.instance)}</p>
+              <p>CPU ({selectedOffer.cpuNumber}): {formatCurrency(creationCost.cpu)}</p>
+              <p>
+                Memória ({selectedOffer.memoryInMb} MB):{" "}
+                {formatCurrency(creationCost.memory)}
+              </p>
+              <p>
+                Disco ({selectedOffer.rootDiskSizeInGb} GB):{" "}
+                {formatCurrency(creationCost.volumes)}
+              </p>
+            </div>
+            <p className="mt-2 font-bold">
+              Total: {formatCurrency(creationCost.total)}
+            </p>
+            {pricingLoading && (
+              <p className="mt-1 text-xs text-[#4B6B8A]">Carregando preços...</p>
+            )}
           </div>
         )}
       </div>
